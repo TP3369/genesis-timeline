@@ -318,9 +318,10 @@ function drawTimeline(state, vis, n) {
 }
 
 // ═══════════════ SPOTLIGHT CARD ═══════════════
-function renderCard(d) {
+function renderCard(d, idx) {
+  const sonName = idx < DATA.length - 1 ? DATA[idx + 1].name : "ఇస్సాకు";
   cardEl.innerHTML = `
-    <div class="spot-name">${d.name}</div>
+    <div class="spot-name">${d.name} <span style="color:#888; font-weight:400; font-size:0.85em; margin:0 10px;">&rarr;</span> <span style="color:var(--accent)">${sonName}</span></div>
     <div class="spot-bar-wrap">
       <div class="spot-seg before" style="flex:${d.age_at_son}">
         <div class="spot-seg-inner">
@@ -418,7 +419,7 @@ function goToStep(s) {
   if (isCardPhase) {
     // Phase A: Show Card, Blur Background
     appContainer.classList.add('blurred');
-    renderCard(DATA[pIndex]);
+    renderCard(DATA[pIndex], pIndex);
     cardEl.classList.add('visible');
     
     // Animate bars silently in background
