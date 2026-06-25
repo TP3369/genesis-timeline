@@ -91,9 +91,15 @@ header p { font-size:1.05rem; opacity:.75; margin-top:4px; }
 .spot-seg-inner { display:flex; flex-direction:column; align-items:center; }
 
 .spot-stats {
-  display:flex; gap:36px; margin-bottom:20px; flex-wrap:wrap;
+  display:flex; gap:36px; margin-bottom:20px; flex-wrap:wrap; align-items:center;
 }
 .spot-stat { display:flex; flex-direction:column; }
+.spot-stat.highlight {
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px 16px;
+  background-color: rgba(211, 47, 47, 0.06);
+}
 .spot-stat-label { font-size:1.05rem; letter-spacing:0.5px; opacity:.8; margin-bottom:4px; font-weight:600; }
 .spot-stat-val { font-size:1.9rem; font-weight:700; color:var(--accent); }
 
@@ -342,7 +348,7 @@ function renderCard(d) {
         <span class="spot-stat-label">మొత్తం ఆయుష్షు</span>
         <span class="spot-stat-val" style="color:var(--highlight)">${d.total} సం.</span>
       </div>
-      <div class="spot-stat">
+      <div class="spot-stat highlight">
         <span class="spot-stat-label">సృష్టి నుండి కాలం</span>
         <span class="spot-stat-val" style="color:var(--highlight)">${d.birth_ysc} – ${d.death_ysc}</span>
       </div>
