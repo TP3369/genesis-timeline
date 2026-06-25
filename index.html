@@ -190,7 +190,7 @@ let svgEl = null;
 let barState = [];
 let animId = null;
 
-const ML = 130, MR = 30, MT = 100, MB = 40;
+const ML = 170, MR = 60, MT = 100, MB = 40;
 const X_MAX = Math.max(...DATA.map(d=>d.death_ysc)) + 60; // Global constant
 
 function ensureSVG() {
@@ -285,10 +285,15 @@ function drawTimeline(state, vis, n) {
     const fs=Math.max(9,Math.min(14,s.h*.75));
     const lfs=Math.max(8,Math.min(12,s.h*.6));
 
-    // Name
+    // Name + Birth Year
     html+=`<text x="${s.x1-8}" y="${s.y+s.h/2+fs*.35}" text-anchor="end"
       fill="rgba(0,0,0,${op})" font-size="${fs}px"
-      font-family="Noto Sans Telugu,Inter,sans-serif" font-weight="600">${d.name}</text>`;
+      font-family="Noto Sans Telugu,Inter,sans-serif" font-weight="600">${d.name} – ${d.birth_ysc}</text>`;
+
+    // Death Year
+    html+=`<text x="${s.x3+8}" y="${s.y+s.h/2+fs*.35}" text-anchor="start"
+      fill="rgba(0,0,0,${op})" font-size="${fs}px"
+      font-family="Noto Sans Telugu,Inter,sans-serif" font-weight="600">మరణం – ${d.death_ysc}</text>`;
 
     // Before bar (Red)
     html+=`<rect class="seg" data-idx="${i}" data-period="before"
