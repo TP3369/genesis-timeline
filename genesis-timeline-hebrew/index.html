@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ఆదికాండము కాలక్రమము: ఆదాము నుండి అబ్రాహాము వరకు</title>
+<title>ఆదికాండము కాలక్రమము: ఆదాము నుండి అబ్రాహాము వరకు (మసోరెటిక్)</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -179,8 +179,8 @@ rect.seg:hover { filter: brightness(1.1); }
 
 <div id="app">
   <header>
-    <h1>ఆదికాండము కాలక్రమము</h1>
-    <p>ఆదాము నుండి అబ్రాహాము వరకు &nbsp;·&nbsp; ← → కీలు వాడండి</p>
+    <h1>ఆదికాండము కాలక్రమము (మసోరెటిక్)</h1>
+    <p>ఆదాము నుండి అబ్రాహాము వరకు (హెబ్రీ మసోరెటిక్) &nbsp;·&nbsp; ← → కీలు వాడండి</p>
   </header>
   <div id="timeline-area"></div>
   <div class="canvas-controls" id="canvas-controls">
@@ -192,7 +192,7 @@ rect.seg:hover { filter: brightness(1.1); }
   <div id="card" class="spot-card"></div>
 </div>
 
-<div id="step-counter"></div>
+<div id="step-info"></div>
 
 <script>
 // ═══════════════ DATA ═══════════════
@@ -225,7 +225,7 @@ let globalStep = 0; // 0 to 39
 const tlArea = document.getElementById('timeline-area');
 const appContainer = document.getElementById('app');
 const cardEl = document.getElementById('card');
-const stepInfo = document.getElementById('step-counter');
+const stepInfo = document.getElementById('step-info');
 
 let svgEl = null;
 let viewportG = null;
