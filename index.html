@@ -1,467 +1,411 @@
 <!DOCTYPE html>
 <html lang="te">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ఆదికాండము కాలక్రమము: ఆదాము నుండి అబ్రాహాము వరకు</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ఆదికాండము కాలక్రమములు: ఆదాము నుండి అబ్రాహాము వరకు</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-:root {
-  --bg: #ffffff;
-  --accent: #d32f2f; /* Red */
-  --highlight: #000000; /* Black for fonts that were yellow */
-  --text: #000000;
-  --glass: rgba(255, 255, 255, 0.95);
-  --glass-border: rgba(0, 0, 0, 0.15);
-}
+    body {
+      background: #fcfcfc;
+      color: #1a1a1a;
+      font-family: 'Noto Sans Telugu', 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-html, body { width:100vw; height:100vh; overflow:hidden; background:var(--bg);
-  font-family:'Noto Sans Telugu','Inter',sans-serif; color:var(--text); }
+    /* Decorative backdrops */
+    .bg-glow {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(211, 47, 47, 0.04) 0%, rgba(25, 118, 210, 0.04) 50%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+      filter: blur(60px);
+    }
 
-/* ── LAYOUT ── */
-#app {
-  position:fixed; inset:0; z-index:2;
-  display:block;
-  transition: filter 0.6s ease;
-}
-#app.blurred {
-  filter: blur(8px);
-  pointer-events: none;
-}
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+      animation: fadeIn 1s ease-out;
+    }
 
-header {
-  position: absolute; top: 0; left: 0; width: 100%;
-  text-align:center; padding:18px 0; z-index:5;
-  background:linear-gradient(to bottom, rgba(255,255,255,.95) 40%, transparent);
-  pointer-events: none;
-}
-header h1 {
-  font-family:'Cinzel',serif; font-size:2.2rem; color:var(--highlight);
-  letter-spacing:2px;
-}
-header p { font-size:1.05rem; opacity:.75; margin-top:4px; }
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 3.2rem;
+      font-weight: 700;
+      color: #000;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
 
-/* ── TIMELINE AREA ── */
-#timeline-area {
-  width:100%; height:100%;
-  position:relative;
-}
+    header p {
+      font-size: 1.25rem;
+      color: #555;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-weight: 500;
+    }
 
-/* ── SPOTLIGHT OVERLAY ── */
-#spotlight-overlay {
-  position:fixed; inset:0; z-index:10;
-  display:flex; align-items:center; justify-content:center;
-  pointer-events:none;
-}
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 36px;
+      width: 100%;
+      max-width: 1120px;
+      animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
 
-.spot-card {
-  width: 90%; max-width: 960px;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 30px 40px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.12);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  opacity:0; transform:translateY(40px) scale(0.95);
-  transition: opacity 0.5s, transform 0.5s cubic-bezier(.4,0,.2,1);
-  pointer-events:none;
-}
-.spot-card.visible {
-  opacity:1; transform:translateY(0) scale(1); pointer-events:auto;
-}
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 20px;
+      padding: 40px 32px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
 
-.spot-name {
-  font-size:3rem; font-weight:700; color:#000; margin-bottom:10px;
-}
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
 
-.spot-bar-wrap { position:relative; width:100%; height:56px; margin:20px 0 24px; display:flex; border-radius:8px; overflow:hidden; }
-.spot-seg {
-  height:100%; display:flex; align-items:center; justify-content:center;
-  font-family:'Inter',sans-serif; font-weight:700; font-size:1.1rem;
-  position:relative;
-}
-.spot-seg.before { background:var(--accent); color:#fff; }
-.spot-seg.after  { background:#fff; color:#000; border:2px solid #000; border-left:none; }
+    /* Color highlights for card borders */
+    .card.lxx::before {
+      background: #d32f2f;
+    }
 
-.spot-seg .seg-years { font-size:1.7rem; font-weight:700; }
-.spot-seg .seg-label { font-size:.75rem; opacity:.85; margin-top:2px; }
-.spot-seg-inner { display:flex; flex-direction:column; align-items:center; }
+    .card.heb::before {
+      background: #1976d2;
+    }
 
-.spot-stats {
-  display:flex; gap:36px; margin-bottom:20px; flex-wrap:wrap; align-items:center;
-}
-.spot-stat { display:flex; flex-direction:column; }
-.spot-stat.highlight {
-  border: 2px solid var(--accent);
-  border-radius: 8px;
-  padding: 10px 16px;
-  background-color: rgba(211, 47, 47, 0.06);
-}
-.spot-stat-label { font-size:1.05rem; letter-spacing:0.5px; opacity:.8; margin-bottom:4px; font-weight:600; }
-.spot-stat-val { font-size:1.9rem; font-weight:700; color:var(--accent); }
+    .card.comp::before {
+      background: linear-gradient(to bottom, #d32f2f, #1976d2);
+    }
 
-.spot-verses { margin-top:10px; }
-.spot-verse {
-  font-size:1.15rem; line-height:1.7;
-  border-left:4px solid var(--highlight); padding-left:16px; margin-bottom:16px;
-  color:#111;
-}
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      border-color: rgba(0, 0, 0, 0.14);
+    }
 
-/* ── STEP COUNTER ── */
-#step-info {
-  position:fixed; bottom:14px; left:50%; transform:translateX(-50%);
-  font-size:.95rem; color:var(--highlight); opacity:.8; z-index:20; font-weight:600;
-}
+    .card:hover::before {
+      width: 10px;
+    }
 
-/* ── TOOLTIP ── */
-#tooltip {
-  position:fixed; z-index:200; pointer-events:none;
-  background:var(--glass); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  border:1px solid var(--glass-border); border-radius:10px;
-  padding:14px 16px; color:var(--text); max-width:340px;
-  box-shadow:0 6px 28px rgba(0,0,0,.15);
-  opacity:0; transition:opacity .15s;
-}
-#tooltip.show { opacity:1; }
-#tooltip .tt-name { font-size:1.2rem; font-weight:700; color:#000; }
-#tooltip .tt-period { font-size:.78rem; color:var(--highlight); margin-bottom:8px; font-weight:600; }
-#tooltip .tt-row { display:flex; gap:16px; margin-bottom:4px; }
-#tooltip .tt-lbl { font-size:.68rem; opacity:.7; text-transform:uppercase; }
-#tooltip .tt-val { font-size:1.15rem; font-weight:600; color:var(--accent); }
-#tooltip .tt-ref { font-size:.8rem; font-style:italic; border-left:2px solid var(--highlight);
-  padding-left:8px; margin-top:8px; color:#333; }
-</style>
+    .badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .lxx .badge {
+      background: #d32f2f;
+    }
+
+    .heb .badge {
+      background: #1976d2;
+    }
+
+    .comp .badge {
+      background: linear-gradient(135deg, #d32f2f, #1976d2);
+    }
+
+    .card h2 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 14px;
+      transition: color 0.3s;
+      line-height: 1.4;
+    }
+
+    .lxx:hover h2 {
+      color: #d32f2f;
+    }
+
+    .heb:hover h2 {
+      color: #1976d2;
+    }
+
+    .comp:hover h2 {
+      background: linear-gradient(135deg, #d32f2f, #1976d2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card p {
+      font-size: 1rem;
+      color: #555;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      margin-top: auto;
+      font-size: 1rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: gap 0.2s;
+    }
+
+    .lxx .btn {
+      color: #d32f2f;
+    }
+
+    .heb .btn {
+      color: #1976d2;
+    }
+
+    .comp .btn {
+      background: linear-gradient(135deg, #d32f2f, #1976d2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card:hover .btn {
+      gap: 12px;
+    }
+
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+      animation: fadeIn 1.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media(max-width: 768px) {
+      header h1 {
+        font-size: 2.3rem;
+      }
+
+      header p {
+        font-size: 1.1rem;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      body {
+        padding: 30px 15px;
+      }
+    }
+
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      pointer-events: none;
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="app">
+  <canvas id="bg-canvas"></canvas>
+  <div class="bg-glow"></div>
+
   <header>
-    <h1>ఆదికాండము కాలక్రమము</h1>
-    <p>ఆదాము నుండి అబ్రాహాము వరకు &nbsp;·&nbsp; ← → కీలు వాడండి</p>
+    <h1>ఆదికాండము కాలక్రమములు</h1>
+    <p>ఆదాము నుండి అబ్రాహాము వరకు కాలక్రమ పరిశోధన దృశ్యీకరణ </p>
   </header>
-  <div id="timeline-area"></div>
-</div>
 
-<div id="spotlight-overlay">
-  <div id="spot-card" class="spot-card"></div>
-</div>
+  <div class="grid">
+    <!-- Card 1: LXX -->
+    <a href="./genesis-timeline-lxx/index.html" class="card lxx">
+      <div class="badge">గ్రీకు (LXX)</div>
+      <h2>గ్రీకు సెప్టాజింట్ కాలక్రమము</h2>
+      <p>ఆదాము నుండి అబ్రాహాము వరకు గ్రీకు సెప్టాజింట్ (LXX) ఆధారంగా పితామహుల జనన మరియు మరణ కాలాల వివరాల దృశ్యీకరణ.</p>
+      <div class="btn">కాలక్రమం చూడండి &rarr;</div>
+    </a>
 
-<div id="tooltip"></div>
-<div id="step-info"></div>
+    <!-- Card 2: Hebrew -->
+    <a href="./genesis-timeline-hebrew/index.html" class="card heb">
+      <div class="badge">హెబ్రీ (Hebrew)</div>
+      <h2>హెబ్రీ మసోరెటిక్ కాలక్రమము</h2>
+      <p>ఆదాము నుండి అబ్రాహాము వరకు హెబ్రీ మసోరెటిక్ గ్రంథ సమాచారం ఆధారంగా పితామహుల కాలక్రమ దృశ్యీకరణ.</p>
+      <div class="btn">కాలక్రమం చూడండి &rarr;</div>
+    </a>
 
-<script>
-// ═══════════════ DATA ═══════════════
-const DATA = [
-  {name:"ఆదాము",age_at_son:130,years_after:800,total:930,birth_ysc:0,son_ysc:130,death_ysc:930,ref_son:"ఆదికాండము 5:3",ref_after:"ఆదికాండము 5:4-5",verse_son:"ఆదాము నూట ముప్పది ఏండ్లు బ్రదికి తన పోలికెగా తన స్వరూపమున ఒక కుమారుని కని అతనికి షేతు అను పేరు పెట్టెను.",verse_after:"ఆదాము షేతును కనిన తరువాత అతడు బ్రదికిన దినములు ఎనిమిది వందల ఏండ్లు; అతడు కుమారులను కుమార్తెలను కనెను. ఆదాము బ్రదికిన దినములన్నియు తొమ్మిది వందల ముప్పది ఏండ్లు; అప్పుడతడు మృతిబొందెను."},
-  {name:"షేతు",age_at_son:105,years_after:807,total:912,birth_ysc:130,son_ysc:235,death_ysc:1042,ref_son:"ఆదికాండము 5:6",ref_after:"ఆదికాండము 5:7-8",verse_son:"షేతు నూట అయిదేండ్లు బ్రదికి ఎనోషును కనెను.",verse_after:"షేతు ఎనోషును కనిన తరువాత ఎనిమిది వందల ఏడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. షేతు బ్రదికిన దినములన్నియు తొమ్మిది వందల పన్నెండేండ్లు; అప్పుడతడు మృతిబొందెను."},
-  {name:"ఎనోషు",age_at_son:90,years_after:815,total:905,birth_ysc:235,son_ysc:325,death_ysc:1140,ref_son:"ఆదికాండము 5:9",ref_after:"ఆదికాండము 5:10-11",verse_son:"ఎనోషు తొంబది ఏండ్లు బ్రదికి కేనానును కనెను.",verse_after:"ఎనోషు కేనానును కనిన తరువాత ఎనిమిది వందల పదునయిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. ఎనోషు బ్రదికిన దినములన్నియు తొమ్మిది వందల అయిదేండ్లు; అప్పుడతడు మృతిబొందెను."},
-  {name:"కేనాను",age_at_son:70,years_after:840,total:910,birth_ysc:325,son_ysc:395,death_ysc:1235,ref_son:"ఆదికాండము 5:12",ref_after:"ఆదికాండము 5:13-14",verse_son:"కేనాను డెబ్బది ఏండ్లు బ్రదికి మహలలేలును కనెను.",verse_after:"కేనాను మహలలేలును కనిన తరువాత ఎనిమిది వందల నలువది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. కేనాను బ్రదికిన దినములన్నియు తొమ్మిది వందల పదియేండ్లు; అప్పుడతడు మృతిబొందెను."},
-  {name:"మహలలేలు",age_at_son:65,years_after:830,total:895,birth_ysc:395,son_ysc:460,death_ysc:1290,ref_son:"ఆదికాండము 5:15",ref_after:"ఆదికాండము 5:16-17",verse_son:"మహలలేలు అరువది అయిదేండ్లు బ్రదికి యెరెదును కనెను.",verse_after:"మహలలేలు యెరెదును కనిన తరువాత ఎనిమిది వందల ముప్పది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. మహలలేలు బ్రదికిన దినములన్నియు ఎనిమిది వందల తొంబది అయిదేండ్లు; అప్పుడతడు మృతిబొందెను."},
-  {name:"యెరెదు",age_at_son:162,years_after:800,total:962,birth_ysc:460,son_ysc:622,death_ysc:1422,ref_son:"ఆదికాండము 5:18",ref_after:"ఆదికాండము 5:19-20",verse_son:"యెరెదు నూట అరువది రెండేండ్లు బ్రదికి హనోకును కనెను.",verse_after:"యెరెదు హనోకును కనిన తరువాత ఎనిమిది వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. యెరెదు బ్రదికిన దినములన్నియు తొమ్మిది వందల అరువది రెండేండ్లు; అప్పుడతడు మృతిబొందెను."},
-  {name:"హనోకు",age_at_son:65,years_after:300,total:365,birth_ysc:622,son_ysc:687,death_ysc:987,ref_son:"ఆదికాండము 5:21",ref_after:"ఆదికాండము 5:22-24",verse_son:"హనోకు అరువది అయిదేండ్లు బ్రదికి మెతూషెలను కనెను.",verse_after:"హనోకు మెతూషెలను కనిన తరువాత మూడు వందల ఏండ్లు దేవునితో నడుచుచు కుమారులను కుమార్తెలను కనెను. హనోకు బ్రదికిన దినములన్నియు మూడు వందల అరువది అయిదేండ్లు. హనోకు దేవునితో నడిచిన తరువాత దేవుడతని తీసికొనిపోయెను గనుక అతడు లేకపోయెను."},
-  {name:"మెతూషెల",age_at_son:187,years_after:782,total:969,birth_ysc:687,son_ysc:874,death_ysc:1656,ref_son:"ఆదికాండము 5:25",ref_after:"ఆదికాండము 5:26-27",verse_son:"మెతూషెల నూట ఎనుబది ఏడేండ్లు బ్రదికి లెమెకును కనెను.",verse_after:"మెతూషెల లెమెకును కనిన తరువాత ఏడు వందల ఎనుబది రెండేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. మెతూషెల బ్రదికిన దినములన్నియు తొమ్మిది వందల అరువది తొమ్మిదేండ్లు; అప్పుడతడు మృతిబొందెను."},
-  {name:"లెమెకు",age_at_son:182,years_after:595,total:777,birth_ysc:874,son_ysc:1056,death_ysc:1651,ref_son:"ఆదికాండము 5:28-29",ref_after:"ఆదికాండము 5:30-31",verse_son:"లెమెకు నూట ఎనుబది రెండేండ్లు బ్రదికి ఒక కుమారుని కని యెహోవా శపించిన యీ నేలవలన కలిగిన మన పనిలోను, మన చేతుల కష్టములోను ఇతడు మనకు నెమ్మది కలుగజేయుననుకొని అతనికి నోవహు అను పేరు పెట్టెను.",verse_after:"లెమెకు నోవహును కనిన తరువాత ఐదు వందల తొంబది అయిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. లెమెకు బ్రదికిన దినములన్నియు ఏడు వందల డెబ్బది ఏడేండ్లు; అప్పుడతడు మృతిబొందెను."},
-  {name:"నోవహు",age_at_son:502,years_after:448,total:950,birth_ysc:1056,son_ysc:1558,death_ysc:2006,ref_son:"ఆదికాండము 5:32",ref_after:"ఆదికాండము 9:28-29",verse_son:"నోవహు ఐదు వందల ఏండ్లవాడై షేమును హామును యాపెతును కనెను.",verse_after:"జలప్రళయము తరువాత నోవహు మూడు వందల ఏబది ఏండ్లు బ్రదికెను. నోవహు దినములన్నియు తొమ్మిది వందల ఏబది ఏండ్లు; అప్పుడతడు మృతిబొందెను."},
-  {name:"షేము",age_at_son:100,years_after:500,total:600,birth_ysc:1558,son_ysc:1658,death_ysc:2158,ref_son:"ఆదికాండము 11:10",ref_after:"ఆదికాండము 11:11",verse_son:"జలప్రళయము గతించిన రెండేండ్లకు షేము నూరేండ్లవాడై అర్పక్షదును కనెను.",verse_after:"షేము అర్పక్షదును కనిన తరువాత ఐదు వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
-  {name:"అర్పక్షదు",age_at_son:35,years_after:403,total:438,birth_ysc:1658,son_ysc:1693,death_ysc:2096,ref_son:"ఆదికాండము 11:12",ref_after:"ఆదికాండము 11:13",verse_son:"అర్పక్షదు ముప్పది అయిదేండ్లు బ్రదికి షేలహును కనెను.",verse_after:"అర్పక్షదు షేలహును కనిన తరువాత నాలుగు వందల మూడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
-  {name:"షేలహు",age_at_son:30,years_after:403,total:433,birth_ysc:1693,son_ysc:1723,death_ysc:2126,ref_son:"ఆదికాండము 11:14",ref_after:"ఆదికాండము 11:15",verse_son:"షేలహు ముప్పది ఏండ్లు బ్రదికి ఏబెరును కనెను.",verse_after:"షేలహు ఏబెరును కనిన తరువాత నాలుగు వందల మూడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
-  {name:"ఏబెరు",age_at_son:34,years_after:430,total:464,birth_ysc:1723,son_ysc:1757,death_ysc:2187,ref_son:"ఆదికాండము 11:16",ref_after:"ఆదికాండము 11:17",verse_son:"ఏబెరు ముప్పది నాలుగేండ్లు బ్రదికి పెలెగును కనెను.",verse_after:"ఏబెరు పెలెగును కనిన తరువాత నాలుగు వందల ముప్పది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
-  {name:"పెలెగు",age_at_son:30,years_after:209,total:239,birth_ysc:1757,son_ysc:1787,death_ysc:1996,ref_son:"ఆదికాండము 11:18",ref_after:"ఆదికాండము 11:19",verse_son:"పెలెగు ముప్పది ఏండ్లు బ్రదికి రయూను కనెను.",verse_after:"పెలెగు రయూను కనిన తరువాత రెండు వందల తొమ్మిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
-  {name:"రయూ",age_at_son:32,years_after:207,total:239,birth_ysc:1787,son_ysc:1819,death_ysc:2026,ref_son:"ఆదికాండము 11:20",ref_after:"ఆదికాండము 11:21",verse_son:"రయూ ముప్పది రెండేండ్లు బ్రదికి సెరూగును కనెను.",verse_after:"రయూ సెరూగును కనిన తరువాత రెండు వందల ఏడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
-  {name:"సెరూగు",age_at_son:30,years_after:200,total:230,birth_ysc:1819,son_ysc:1849,death_ysc:2049,ref_son:"ఆదికాండము 11:22",ref_after:"ఆదికాండము 11:23",verse_son:"సెరూగు ముప్పది ఏండ్లు బ్రదికి నాహోరును కనెను.",verse_after:"సెరూగు నాహోరును కనిన తరువాత రెండు వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
-  {name:"నాహోరు",age_at_son:29,years_after:119,total:148,birth_ysc:1849,son_ysc:1878,death_ysc:1997,ref_son:"ఆదికాండము 11:24",ref_after:"ఆదికాండము 11:25",verse_son:"నాహోరు ఇరువది తొమ్మిదేండ్లు బ్రదికి తెరహును కనెను.",verse_after:"నాహోరు తెరహును కనిన తరువాత నూట పందొమ్మిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
-  {name:"తెరహు",age_at_son:130,years_after:75,total:205,birth_ysc:1878,son_ysc:2008,death_ysc:2083,ref_son:"ఆదికాండము 11:26",ref_after:"ఆదికాండము 11:32",verse_son:"తెరహు డెబ్బది ఏండ్లు బ్రదికి అబ్రామును నాహోరును హారానును కనెను.",verse_after:"తెరహు బ్రదికిన దినములు రెండు వందల అయిదేండ్లు. తెరహు హారానులో మృతిబొందెను."},
-  {name:"అబ్రాహాము",age_at_son:100,years_after:75,total:175,birth_ysc:2008,son_ysc:2108,death_ysc:2183,ref_son:"ఆదికాండము 21:5",ref_after:"ఆదికాండము 25:7",verse_son:"అబ్రాహాము కుమారుడైన ఇస్సాకు అతనికి పుట్టినప్పుడు అతడు నూరేండ్లవాడు.",verse_after:"అబ్రాహాము బ్రదికిన ఆయుష్కాలపు సంవత్సరములు నూట డెబ్బది యయిదు."}
-];
+    <!-- Card 3: Comparison -->
+    <a href="./genesis-timeline-comparison/index.html" class="card comp">
+      <div class="badge">పోలిక (Comparison)</div>
+      <h2>ఆదికాండము కాలక్రమ పోలిక</h2>
+      <p>గ్రీకు సెప్టాజింట్ మరియు హెబ్రీ మసోరెటిక్ వెర్షన్‌ల మధ్య తేడాలను సులభంగా అర్థం చేసుకోవడానికి ఒకే ఇంటరాక్టివ్
+        చార్ట్ పోలిక.</p>
+      <div class="btn">పోలిక చూడండి &rarr;</div>
+    </a>
+  </div>
 
-// ═══════════════ CHART STATE ═══════════════
-const TOTAL = DATA.length;
-let globalStep = 0; // 0 to 39
-const tlArea = document.getElementById('timeline-area');
-const appContainer = document.getElementById('app');
-const cardEl = document.getElementById('spot-card');
-const ttip = document.getElementById('tooltip');
-const stepInfo = document.getElementById('step-info');
+  <footer>
+    <p>&copy; 2026 ఆదికాండము కాలక్రమ పరిశోధన </p>
+  </footer>
 
-let svgEl = null;
-let barState = [];
-let animId = null;
+  <script>
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
 
-const ML = 170, MR = 60, MT = 100, MB = 40;
-const X_MAX = Math.max(...DATA.map(d=>d.death_ysc)) + 60; // Global constant
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
 
-function ensureSVG() {
-  if (svgEl) return;
-  svgEl = document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svgEl.style.display = 'block';
-  svgEl.style.width = '100%';
-  svgEl.style.height = '100%';
-  tlArea.appendChild(svgEl);
-}
+    const particles = [];
+    const particleCount = Math.min(60, Math.floor((width * height) / 25000));
 
-// ── Layout calculates slots based on 20 fixed positions ──
-function calcLayout(n) {
-  const W = innerWidth;
-  const H = innerHeight;
-  const cW = W - ML - MR;
-  const cH = H - MT - MB;
-  const rowH = cH / TOTAL; 
-  const barH = Math.min(rowH * 0.7, 30);
+    class Particle {
+      constructor() {
+        this.reset();
+        this.y = Math.random() * height;
+      }
 
-  const vis = DATA.slice(0, n);
-  return vis.map((d, i) => ({
-    x1: ML + (d.birth_ysc / X_MAX) * cW,
-    x2: ML + (d.son_ysc / X_MAX) * cW,
-    x3: ML + (d.death_ysc / X_MAX) * cW,
-    y: MT + rowH * i + (rowH - barH) / 2,
-    h: barH,
-    op: 1
-  }));
-}
+      reset() {
+        this.x = Math.random() * width;
+        this.y = height + Math.random() * 20;
+        this.radius = Math.random() * 1.8 + 0.8;
+        this.vx = (Math.random() - 0.5) * 0.15;
+        this.vy = -Math.random() * 0.25 - 0.05;
+        this.maxOpacity = Math.random() * 0.45 + 0.15;
+        this.opacity = Math.random() * this.maxOpacity;
+        this.twinkleSpeed = Math.random() * 0.008 + 0.002;
+        this.twinkleDir = Math.random() > 0.5 ? 1 : -1;
+      }
 
-function lerp(a,b,t){ return a+(b-a)*t; }
-function ease(t){ return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
 
-function animateTimeline(targetLayout, n, dur) {
-  if (animId) cancelAnimationFrame(animId);
-  const vis = DATA.slice(0, n);
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < -20) {
+          this.reset();
+        }
 
-  const start = [];
-  for (let i = 0; i < n; i++) {
-    if (barState[i]) {
-      start.push({...barState[i]});
-    } else {
-      start.push({ x1:targetLayout[i].x1, x2:targetLayout[i].x1, x3:targetLayout[i].x1,
-                    y:targetLayout[i].y, h:targetLayout[i].h, op:0 });
+        this.opacity += this.twinkleSpeed * this.twinkleDir;
+        if (this.opacity >= this.maxOpacity) {
+          this.opacity = this.maxOpacity;
+          this.twinkleDir = -1;
+        } else if (this.opacity <= 0.05) {
+          this.opacity = 0.05;
+          this.twinkleDir = 1;
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(218, 165, 32, ${this.opacity.toFixed(3)})`;
+        ctx.fill();
+      }
     }
-  }
 
-  const t0 = performance.now();
-  function tick(now) {
-    let t = Math.min(1, (now-t0)/dur);
-    const et = ease(t);
-    const cur = [];
-    for (let i=0;i<n;i++) {
-      cur.push({
-        x1: lerp(start[i].x1, targetLayout[i].x1, et),
-        x2: lerp(start[i].x2, targetLayout[i].x2, et),
-        x3: lerp(start[i].x3, targetLayout[i].x3, et),
-        y:  lerp(start[i].y,  targetLayout[i].y,  et),
-        h:  lerp(start[i].h,  targetLayout[i].h,  et),
-        op: lerp(start[i].op, targetLayout[i].op, et),
-      });
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
     }
-    drawTimeline(cur, vis, n);
-    if (t<1) { animId=requestAnimationFrame(tick); }
-    else { barState=cur; animId=null; }
-  }
-  animId = requestAnimationFrame(tick);
-}
 
-// ── Draw SVG frame ──
-function drawTimeline(state, vis, n) {
-  const W = innerWidth;
-  const H = innerHeight;
-  const cW = W - ML - MR;
-  const tickStep = X_MAX<500?50:X_MAX<1500?100:X_MAX<3000?200:500;
-  
-  let html = '';
-  // X-axis is ALWAYS present
-  html += `<line x1="${ML}" y1="${H-MB}" x2="${W-MR}" y2="${H-MB}" stroke="rgba(0,0,0,.2)"/>`;
-  for(let tv=0;tv<=X_MAX;tv+=tickStep){
-    const x=ML+(tv/X_MAX)*cW;
-    html+=`<line x1="${x}" y1="${MT}" x2="${x}" y2="${H-MB}" stroke="rgba(0,0,0,.06)"/>`;
-    html+=`<line x1="${x}" y1="${H-MB}" x2="${x}" y2="${H-MB+5}" stroke="rgba(0,0,0,.3)"/>`;
-    html+=`<text x="${x}" y="${H-MB+17}" text-anchor="middle" fill="rgba(0,0,0,.6)" font-size="10" font-family="Inter,sans-serif">${tv}</text>`;
-  }
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
 
-  for (let i=0;i<n;i++){
-    const s=state[i], d=vis[i];
-    const wB=Math.max(0,s.x2-s.x1), wA=Math.max(0,s.x3-s.x2);
-    const op=s.op.toFixed(3);
-    const fs=Math.max(9,Math.min(14,s.h*.75));
-    const lfs=Math.max(8,Math.min(12,s.h*.6));
+      for (let i = 0; i < particleCount; i++) {
+        particles[i].update();
+        particles[i].draw();
 
-    // Name + Birth Year
-    html+=`<text x="${s.x1-8}" y="${s.y+s.h/2+fs*.35}" text-anchor="end"
-      fill="rgba(0,0,0,${op})" font-size="${fs}px"
-      font-family="Noto Sans Telugu,Inter,sans-serif" font-weight="600">${d.name} – ${d.birth_ysc}</text>`;
+        for (let j = i + 1; j < particleCount; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
 
-    // Death Year
-    html+=`<text x="${s.x3+8}" y="${s.y+s.h/2+fs*.35}" text-anchor="start"
-      fill="rgba(0,0,0,${op})" font-size="${fs}px"
-      font-family="Noto Sans Telugu,Inter,sans-serif" font-weight="600">మరణం – ${d.death_ysc}</text>`;
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            const lineOp = (1 - dist / 120) * 0.05 * Math.min(particles[i].opacity, particles[j].opacity);
+            ctx.strokeStyle = `rgba(218, 165, 32, ${lineOp.toFixed(3)})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
 
-    // Before bar (Red)
-    html+=`<rect class="seg" data-idx="${i}" data-period="before"
-      x="${s.x1}" y="${s.y}" width="${wB}" height="${s.h}"
-      rx="2" fill="var(--accent)" opacity="${op}" style="cursor:pointer"/>`;
-    if(wB>22) html+=`<text x="${s.x1+wB/2}" y="${s.y+s.h/2+lfs*.35}" text-anchor="middle"
-      fill="rgba(255,255,255,${(s.op*.9).toFixed(3)})" font-size="${lfs}px"
-      font-family="Inter,sans-serif" font-weight="600" pointer-events="none">${d.age_at_son}</text>`;
+      requestAnimationFrame(animate);
+    }
 
-    // After bar (White with Black Border)
-    html+=`<rect class="seg" data-idx="${i}" data-period="after"
-      x="${s.x2}" y="${s.y}" width="${wA}" height="${s.h}"
-      rx="2" fill="#ffffff" stroke="#000000" stroke-width="1.5" opacity="${op}" style="cursor:pointer"/>`;
-    if(wA>22) html+=`<text x="${s.x2+wA/2}" y="${s.y+s.h/2+lfs*.35}" text-anchor="middle"
-      fill="rgba(0,0,0,${(s.op*.8).toFixed(3)})" font-size="${lfs}px"
-      font-family="Inter,sans-serif" font-weight="600" pointer-events="none">${d.years_after}</text>`;
-  }
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
 
-  svgEl.innerHTML = html;
-  
-  // Hover listeners
-  svgEl.querySelectorAll('.seg').forEach(el=>{
-    el.addEventListener('mouseenter', onHover);
-    el.addEventListener('mouseleave', onLeave);
-    el.addEventListener('mousemove', onMove);
-  });
-}
+    animate();
+  </script>
 
-// ═══════════════ SPOTLIGHT CARD ═══════════════
-function renderCard(d, idx) {
-  const sonName = idx < DATA.length - 1 ? DATA[idx + 1].name : "ఇస్సాకు";
-  cardEl.innerHTML = `
-    <div class="spot-name">${d.name} <span style="color:#888; font-weight:400; font-size:0.85em; margin:0 10px;">&rarr;</span> <span style="color:var(--accent)">${sonName}</span></div>
-    <div class="spot-bar-wrap">
-      <div class="spot-seg before" style="flex:${d.age_at_son}">
-        <div class="spot-seg-inner">
-          <div class="seg-years">${d.age_at_son}</div>
-          <div class="seg-label">కుమారుడు పుట్టే వరకు</div>
-        </div>
-      </div>
-      <div class="spot-seg after" style="flex:${d.years_after}">
-        <div class="spot-seg-inner">
-          <div class="seg-years">${d.years_after}</div>
-          <div class="seg-label">కుమారుడు పుట్టిన తర్వాత</div>
-        </div>
-      </div>
-    </div>
-    <div class="spot-stats">
-      <div class="spot-stat">
-        <span class="spot-stat-label">కుమారుడు పుట్టిన వయస్సు</span>
-        <span class="spot-stat-val">${d.age_at_son} సం.</span>
-      </div>
-      <div class="spot-stat">
-        <span class="spot-stat-label">తర్వాత జీవించిన కాలం</span>
-        <span class="spot-stat-val" style="color:var(--highlight)">${d.years_after} సం.</span>
-      </div>
-      <div class="spot-stat">
-        <span class="spot-stat-label">మొత్తం ఆయుష్షు</span>
-        <span class="spot-stat-val" style="color:var(--highlight)">${d.total} సం.</span>
-      </div>
-      <div class="spot-stat highlight">
-        <span class="spot-stat-label">సృష్టి నుండి కాలం</span>
-        <span class="spot-stat-val" style="color:var(--highlight)">${d.birth_ysc} – ${d.death_ysc}</span>
-      </div>
-    </div>
-    <div class="spot-verses">
-      <div class="spot-verse"><strong>${d.ref_son}:</strong> ${d.verse_son}</div>
-      <div class="spot-verse"><strong>${d.ref_after}:</strong> ${d.verse_after}</div>
-    </div>
-  `;
-}
-
-// ═══════════════ TOOLTIP ═══════════════
-function onHover(e){
-  // Do not show tooltip if background is blurred
-  if(appContainer.classList.contains('blurred')) return;
-
-  const idx=+e.target.dataset.idx, period=e.target.dataset.period, d=DATA[idx];
-  const pLabel = period==='before'?'కుమారుడు పుట్టే వరకు':'కుమారుడు పుట్టిన తర్వాత';
-  const yrs = period==='before'?d.age_at_son:d.years_after;
-  const rng = period==='before'?`${d.birth_ysc} – ${d.son_ysc}`:`${d.son_ysc} – ${d.death_ysc}`;
-  const ref = period==='before'?d.ref_son:d.ref_after;
-
-  ttip.innerHTML=`
-    <div class="tt-name">${d.name}</div>
-    <div class="tt-period">${pLabel}</div>
-    <div class="tt-row">
-      <div><div class="tt-lbl">సంవత్సరాలు</div><div class="tt-val">${yrs}</div></div>
-      <div><div class="tt-lbl">మొత్తం ఆయుష్షు</div><div class="tt-val" style="color:var(--highlight)">${d.total}</div></div>
-    </div>
-    <div class="tt-ref">${ref}</div>`;
-  ttip.classList.add('show');
-  svgEl.querySelectorAll('.seg').forEach(el=>{ if(el!==e.target)el.setAttribute('opacity','0.3'); });
-  e.target.setAttribute('opacity','1');
-}
-function onLeave(){
-  ttip.classList.remove('show');
-  svgEl.querySelectorAll('.seg').forEach(el=>el.setAttribute('opacity','1'));
-}
-function onMove(e){
-  let l=e.clientX+16, t=e.clientY-20;
-  if(l+350>innerWidth) l=e.clientX-360;
-  if(l<8) l=8;
-  if(t<8) t=8;
-  const tr=ttip.getBoundingClientRect();
-  if(t+tr.height>innerHeight-8) t=innerHeight-tr.height-8;
-  ttip.style.left=l+'px'; ttip.style.top=t+'px';
-}
-
-// ═══════════════ STATE MACHINE ═══════════════
-let busy = false;
-
-function goToStep(s) {
-  if (busy) return;
-  
-  if (s < 0) s = 0;
-  if (s > TOTAL * 2 - 1) s = TOTAL * 2 - 1;
-  globalStep = s;
-
-  const pIndex = Math.floor(globalStep / 2);
-  const isCardPhase = (globalStep % 2 === 0);
-  
-  const numBars = isCardPhase ? pIndex : pIndex + 1;
-  stepInfo.textContent = `${pIndex + 1} / ${TOTAL} ${isCardPhase ? '(వివరాలు)' : '(చార్టు)'}`;
-
-  ensureSVG();
-
-  if (isCardPhase) {
-    // Phase A: Show Card, Blur Background
-    appContainer.classList.add('blurred');
-    renderCard(DATA[pIndex], pIndex);
-    cardEl.classList.add('visible');
-    
-    // Animate bars silently in background
-    const target = calcLayout(numBars);
-    animateTimeline(target, numBars, 300);
-  } else {
-    // Phase B: Hide Card, Unblur, Animate Bar in
-    busy = true;
-    appContainer.classList.remove('blurred');
-    cardEl.classList.remove('visible');
-    
-    setTimeout(() => {
-      const target = calcLayout(numBars);
-      animateTimeline(target, numBars, 700);
-      setTimeout(() => { busy = false; }, 750);
-    }, 400); // Wait for unblur & card fade
-  }
-}
-
-// ── Keyboard ──
-addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight') goToStep(globalStep + 1);
-  if (e.key === 'ArrowLeft')  goToStep(globalStep - 1);
-});
-
-// ── Resize ──
-addEventListener('resize', () => {
-  const pIndex = Math.floor(globalStep / 2);
-  const numBars = (globalStep % 2 === 0) ? pIndex : pIndex + 1;
-  barState = calcLayout(numBars);
-  drawTimeline(barState, DATA.slice(0,numBars), numBars);
-});
-
-// ── Init ──
-addEventListener('DOMContentLoaded', () => {
-  goToStep(0);
-});
-</script>
 </body>
+
 </html>
