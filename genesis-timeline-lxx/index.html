@@ -891,9 +891,15 @@ function setupDummyEvents() {
 
 // ═══════════════ STATE MACHINE ═══════════════
 let busy = false;
+let phaseBTimeout1 = null;
+let phaseBTimeout2 = null;
 
 function goToStep(s) {
-  if (busy) return;
+  // Cancel any active timers and requestAnimationFrame loops to make navigation immediate
+  if (phaseBTimeout1) { clearTimeout(phaseBTimeout1); phaseBTimeout1 = null; }
+  if (phaseBTimeout2) { clearTimeout(phaseBTimeout2); phaseBTimeout2 = null; }
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+  busy = false;
   
   if (s < 0) s = 0;
   if (s > TOTAL * 2 - 1) s = TOTAL * 2 - 1;
@@ -929,10 +935,14 @@ function goToStep(s) {
     appContainer.classList.remove('blurred');
     cardEl.classList.remove('visible');
     
-    setTimeout(() => {
+    phaseBTimeout1 = setTimeout(() => {
       const target = calcLayout(currentNumBars);
       animateTimeline(target, currentNumBars, 700);
-      setTimeout(() => { busy = false; }, 750);
+      phaseBTimeout2 = setTimeout(() => { 
+        busy = false; 
+        phaseBTimeout1 = null;
+        phaseBTimeout2 = null;
+      }, 750);
     }, 400); // Wait for unblur & card fade
   }
 }

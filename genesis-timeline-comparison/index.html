@@ -545,12 +545,6 @@ function calcLayout(n, hIdx = null) {
   const currentDATA = getCurrentDATA();
   const currentTOTAL = currentDATA.length;
   
-  const rowH = cH / currentTOTAL; 
-  const barH = Math.min(rowH * 0.7, 30);
-
-  const vis = currentDATA.slice(0, n);
-  const active_X_MAX = getXMax();
-
   let shiftActive = false;
   if (showLXX && showHEB && hIdx !== null && hIdx < n) {
     const name = DATA_LXX[hIdx].name;
@@ -559,11 +553,19 @@ function calcLayout(n, hIdx = null) {
     }
   }
 
+  const total_rows = shiftActive ? currentTOTAL + 1 : currentTOTAL;
+  const rowH = cH / total_rows; 
+  const barH = Math.min(rowH * 0.7, 30);
+
+  const vis = currentDATA.slice(0, n);
+  const active_X_MAX = getXMax();
+
   return vis.map((d, i) => {
-    let y = MT + rowH * i + (rowH - barH) / 2;
+    let yIdx = i;
     if (shiftActive && i > hIdx) {
-      y += barH + 8;
+      yIdx = i + 1;
     }
+    const y = MT + rowH * yIdx + (rowH - barH) / 2;
     return {
       x1: ML + (d.birth_ysc / active_X_MAX) * cW,
       x2: ML + (d.son_ysc / active_X_MAX) * cW,
@@ -744,6 +746,19 @@ function drawTimeline(state, vis, n) {
     }
   }
 
+  const cH = H - MT - MB;
+  const currentDATA = getCurrentDATA();
+  const currentTOTAL = currentDATA.length;
+  let shiftActive = false;
+  if (showLXX && showHEB && hoveredIdx !== null && hoveredIdx < n) {
+    const name = DATA_LXX[hoveredIdx].name;
+    if (DATA_HEB.some(h => h.name === name)) {
+      shiftActive = true;
+    }
+  }
+  const total_rows = shiftActive ? currentTOTAL + 1 : currentTOTAL;
+  const rowH = cH / total_rows;
+
   // Draw full-width transparent hover detector rows
   for (let i = 0; i < n; i++) {
     const s = state[i];
@@ -753,7 +768,7 @@ function drawTimeline(state, vis, n) {
     let detH = s.h + 4;
     
     if (showLXX && showHEB && hoveredIdx === i) {
-      detH = s.h + s.h + 12;
+      detH = rowH + s.h + 4;
     }
 
     html += `<rect class="row-hover-detector" data-idx="${i}" 
@@ -803,16 +818,18 @@ function setHoveredIdx(idx) {
       const active_X_MAX = getXMax();
       const { W, H } = getChartDimensions();
       const cW = W - ML - MR;
-      const rowH = (H - MT - MB) / currentDATA.length;
+      
+      const total_rows = currentDATA.length + 1;
+      const rowH = (H - MT - MB) / total_rows;
       const barH = Math.min(rowH * 0.7, 30);
       
-      const y_greek = MT + rowH * hoveredIdx + (rowH - barH) / 2;
+      const y_heb = MT + rowH * (hoveredIdx + 1) + (rowH - barH) / 2;
       
       targetCompBar = {
         x1: ML + (hebCounterpart.birth_ysc / active_X_MAX) * cW,
         x2: ML + (hebCounterpart.son_ysc / active_X_MAX) * cW,
         x3: ML + (hebCounterpart.death_ysc / active_X_MAX) * cW,
-        y: y_greek + barH + 4,
+        y: y_heb,
         h: barH,
         op: 1
       };
@@ -855,7 +872,7 @@ function renderCard(idx) {
         <div class="dual-row lxx-row" style="border-bottom: 2px dashed rgba(0,0,0,0.15); padding-bottom: 20px; margin-bottom: 20px;">
           <div class="spot-name" style="font-size: 1.8rem; display: flex; align-items: center; justify-content: space-between; width: 100%;">
             <span>${d_lxx.name} <span style="color:#888; font-weight:400; font-size:0.8em; margin:0 4px;">&rarr;</span> <span style="color:#d32f2f">${sonNameLXX}</span></span>
-            <span style="background: #d32f2f; color: #fff; font-size: 0.55em; padding: 2px 8px; border-radius: 4px; font-weight: bold;">గ్రీకు (LXX)</span>
+            <span style="background: #d32f2f; color: #fff; font-size: 0.55em; padding: 2px 8px; border-radius: 4px; font-weight: bold;">గ్రీకు సెప్టాజింట్ (LXX)</span>
           </div>
           
           <div class="spot-bar-wrap" style="height: 38px; margin: 12px 0;">
@@ -907,7 +924,7 @@ function renderCard(idx) {
           ${d_heb ? `
             <div class="spot-name" style="font-size: 1.8rem; display: flex; align-items: center; justify-content: space-between; width: 100%;">
               <span>${d_heb.name} <span style="color:#888; font-weight:400; font-size:0.8em; margin:0 4px;">&rarr;</span> <span style="color:#1976d2">${sonNameHEB}</span></span>
-              <span style="background: #1976d2; color: #fff; font-size: 0.55em; padding: 2px 8px; border-radius: 4px; font-weight: bold;">హెబ్రీ (Hebrew)</span>
+              <span style="background: #1976d2; color: #fff; font-size: 0.55em; padding: 2px 8px; border-radius: 4px; font-weight: bold;">హెబ్రీ మసోరెటిక్ (Hebrew)</span>
             </div>
             
             <div class="spot-bar-wrap" style="height: 38px; margin: 12px 0;">
@@ -1035,9 +1052,15 @@ document.getElementById('spotlight-overlay').addEventListener('click', (e) => {
 
 // ═══════════════ STATE MACHINE ═══════════════
 let busy = false;
+let phaseBTimeout1 = null;
+let phaseBTimeout2 = null;
 
 function goToStep(s) {
-  if (busy) return;
+  // Cancel any active timers and requestAnimationFrame loops to make navigation immediate
+  if (phaseBTimeout1) { clearTimeout(phaseBTimeout1); phaseBTimeout1 = null; }
+  if (phaseBTimeout2) { clearTimeout(phaseBTimeout2); phaseBTimeout2 = null; }
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+  busy = false;
   
   const currentDATA = getCurrentDATA();
   const currentTOTAL = currentDATA.length;
@@ -1080,10 +1103,14 @@ function goToStep(s) {
     appContainer.classList.remove('blurred');
     cardEl.classList.remove('visible');
     
-    setTimeout(() => {
+    phaseBTimeout1 = setTimeout(() => {
       const target = calcLayout(numBars, hoveredIdx);
       animateTimeline(target, numBars, 700);
-      setTimeout(() => { busy = false; }, 750);
+      phaseBTimeout2 = setTimeout(() => { 
+        busy = false; 
+        phaseBTimeout1 = null;
+        phaseBTimeout2 = null;
+      }, 750);
     }, 400); 
   }
 }
