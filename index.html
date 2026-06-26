@@ -268,6 +268,50 @@
       z-index: -2;
       pointer-events: none;
     }
+    .dedication-banner {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(218, 165, 32, 0.25);
+      border-radius: 20px;
+      padding: 28px 32px;
+      max-width: 1120px;
+      width: 100%;
+      margin: 50px auto 0 auto;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(218, 165, 32, 0.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      animation: slideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dedication-banner:hover {
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 0 20px 40px rgba(218, 165, 32, 0.08);
+      border-color: rgba(218, 165, 32, 0.55);
+    }
+    .dedication-banner h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #b8860b; 
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+    }
+    .dedication-banner p {
+      font-size: 1rem;
+      color: #444;
+      line-height: 1.7;
+    }
+    .dedication-banner a {
+      color: #d32f2f;
+      text-decoration: none;
+      font-weight: 700;
+      transition: color 0.2s;
+    }
+    .dedication-banner a:hover {
+      color: #1976d2;
+      text-decoration: underline;
+    }
   </style>
 </head>
 
@@ -291,7 +335,7 @@
     </a>
 
     <!-- Card 2: Hebrew -->
-    <a href="./genesis-timeline-hebrew/index.html" class="card heb">
+    <a href="./genesis-timeline/index.html" class="card heb">
       <div class="badge">హెబ్రీ (Hebrew)</div>
       <h2>హెబ్రీ మసోరెటిక్ కాలక్రమము</h2>
       <p>ఆదాము నుండి అబ్రాహాము వరకు హెబ్రీ మసోరెటిక్ గ్రంథ సమాచారం ఆధారంగా పితామహుల కాలక్రమ దృశ్యీకరణ.</p>
@@ -308,8 +352,18 @@
     </a>
   </div>
 
+  <div class="dedication-banner">
+    <h3>అంకితం &bull; Dedication</h3>
+    <p>
+      సత్య శోధనలో నిలబడి, మాతృభూమి సాంస్కృతిక విలువలను రక్షించుకోవడంలో మరియు ధర్మ రక్షణ కోసం నిరంతరం శ్రమిస్తున్న 
+      <a href="https://www.youtube.com/@kiranaasthram" target="_blank">కిరణాస్త్రం (@kiranaasthram)</a> 
+      యూట్యూబ్ ఛానెల్ <strong>15,000 (15K) సబ్‌స్క్రైబర్ల</strong> మైలురాయిని విజయవంతంగా చేరుకున్న శుభ సందర్భంలో... 
+      ఈ ఆదికాండము కాలక్రమ పరిశోధన ప్రాజెక్ట్ సగర్వంగా వారికి అంకితం చేయబడింది.
+    </p>
+  </div>
+
   <footer>
-    <p>&copy; 2026 ఆదికాండము కాలక్రమ పరిశోధన </p>
+    <p>&copy; 2026 ఆదికాండము కాలక్రమ పరిశోధన ప్రాజెక్ట్</p>
   </footer>
 
   <script>
@@ -320,20 +374,20 @@
     let height = canvas.height = window.innerHeight;
 
     const particles = [];
-    const particleCount = Math.min(60, Math.floor((width * height) / 25000));
+    const particleCount = Math.min(60, Math.floor((width * height) / 25000)); 
 
     class Particle {
       constructor() {
         this.reset();
-        this.y = Math.random() * height;
+        this.y = Math.random() * height; 
       }
 
       reset() {
         this.x = Math.random() * width;
-        this.y = height + Math.random() * 20;
+        this.y = height + Math.random() * 20; 
         this.radius = Math.random() * 1.8 + 0.8;
         this.vx = (Math.random() - 0.5) * 0.15;
-        this.vy = -Math.random() * 0.25 - 0.05;
+        this.vy = -Math.random() * 0.25 - 0.05; 
         this.maxOpacity = Math.random() * 0.45 + 0.15;
         this.opacity = Math.random() * this.maxOpacity;
         this.twinkleSpeed = Math.random() * 0.008 + 0.002;
@@ -362,7 +416,7 @@
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(218, 165, 32, ${this.opacity.toFixed(3)})`;
+        ctx.fillStyle = `rgba(218, 165, 32, ${this.opacity.toFixed(3)})`; 
         ctx.fill();
       }
     }
@@ -374,6 +428,7 @@
     function animate() {
       ctx.clearRect(0, 0, width, height);
 
+      // Starlight nodes
       for (let i = 0; i < particleCount; i++) {
         particles[i].update();
         particles[i].draw();
@@ -388,7 +443,7 @@
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
             const lineOp = (1 - dist / 120) * 0.05 * Math.min(particles[i].opacity, particles[j].opacity);
-            ctx.strokeStyle = `rgba(218, 165, 32, ${lineOp.toFixed(3)})`;
+            ctx.strokeStyle = `rgba(218, 165, 32, ${lineOp.toFixed(3)})`; 
             ctx.lineWidth = 0.8;
             ctx.stroke();
           }
