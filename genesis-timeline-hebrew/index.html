@@ -187,6 +187,31 @@ header p { font-size:1.05rem; opacity:.75; margin-top:4px; }
 /* ── SVG BARS ── */
 rect.seg { transition: filter 0.2s; cursor: pointer; }
 rect.seg:hover { filter: brightness(1.1); }
+
+/* ── DUMMY SONS STYLING ── */
+#dummy-son-popup input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+}
+#btn-popup-cancel:hover { background: #ddd; }
+#btn-popup-add:hover:not(:disabled) { filter: brightness(1.1); }
+rect.dummy-seg { transition: filter 0.2s; }
+rect.dummy-seg:hover { filter: brightness(1.1); }
+
+.patriarch-group:hover .add-strip {
+  opacity: 0.40 !important;
+}
+.add-strip:hover {
+  opacity: 0.70 !important;
+  fill: #000000 !important;
+}
+.dummy-group:hover .dummy-delete-g {
+  opacity: 1 !important;
+}
+.dummy-delete-g:hover circle {
+  fill: #d32f2f !important;
+}
 </style>
 </head>
 <body>
@@ -223,6 +248,25 @@ rect.seg:hover { filter: brightness(1.1); }
   <div id="card" class="spot-card"></div>
 </div>
 
+<!-- Floating popup for adding dummy sons -->
+<div id="dummy-son-popup" style="position: absolute; display: none; z-index: 21; width: 260px; background: rgba(255, 255, 255, 0.98); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-family: 'Inter', 'Noto Sans Telugu', sans-serif;">
+  <div style="font-size: 13px; font-weight: 700; color: #111; margin-bottom: 12px; text-align: center;">ఇతర కుమారుడిని జోడించు (Add Son)</div>
+  <div id="popup-limit-msg" style="color: #ff3333; font-size: 11px; font-weight: 600; text-align: center; margin-bottom: 8px; display: none;">గరిష్టంగా 10 గురు కుమారులను మాత్రమే చేర్చగలరు!</div>
+  <div style="margin-bottom: 10px;">
+    <label style="display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 600;">కుమారుడు జన్మించినప్పుడు తండ్రి వయస్సు:</label>
+    <input type="number" id="input-father-age" style="width: 100%; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; font-size: 12px;" min="1" placeholder="ఉదా: 130">
+    <div id="father-age-error" style="color: #ff3333; font-size: 10px; margin-top: 2px; display: none;"></div>
+  </div>
+  <div style="margin-bottom: 14px;">
+    <label style="display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 600;">కుమారుని ఆయుష్షు (Son's Lifespan):</label>
+    <input type="number" id="input-son-lifespan" style="width: 100%; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; font-size: 12px;" min="1" placeholder="ఉదా: 800">
+  </div>
+  <div style="display: flex; gap: 8px; justify-content: flex-end;">
+    <button id="btn-popup-cancel" style="padding: 6px 12px; font-size: 12px; font-weight: 600; background: #eee; border: none; border-radius: 4px; cursor: pointer; color: #333; transition: background 0.2s;">రద్దు (Cancel)</button>
+    <button id="btn-popup-add" style="padding: 6px 12px; font-size: 12px; font-weight: 600; background: var(--accent); border: none; border-radius: 4px; cursor: pointer; color: #fff; transition: background 0.2s;">జోడించు (Add)</button>
+  </div>
+</div>
+
 <div id="step-info"></div>
 
 <script>
@@ -253,6 +297,7 @@ const DATA = [
 // ═══════════════ CHART STATE ═══════════════
 const TOTAL = DATA.length;
 let globalStep = 0; // 0 to 39
+let currentNumBars = 0;
 const tlArea = document.getElementById('timeline-area');
 const appContainer = document.getElementById('app');
 const cardEl = document.getElementById('card');
@@ -420,18 +465,33 @@ function calcLayout(n) {
   const { W, H } = getChartDimensions();
   const cW = W - ML - MR;
   const cH = H - MT - MB;
-  const rowH = cH / TOTAL; 
+  
+  // Calculate total dummy sons in the dataset
+  let total_dummy_sons = 0;
+  for (let i = 0; i < DATA.length; i++) {
+    total_dummy_sons += (DATA[i].dummy_sons || []).length;
+  }
+  
+  const total_rows = TOTAL + total_dummy_sons;
+  const rowH = Math.max(12, cH / total_rows);
   const barH = Math.min(rowH * 0.7, 30);
 
   const vis = DATA.slice(0, n);
-  return vis.map((d, i) => ({
-    x1: ML + (d.birth_ysc / X_MAX) * cW,
-    x2: ML + (d.son_ysc / X_MAX) * cW,
-    x3: ML + (d.death_ysc / X_MAX) * cW,
-    y: MT + rowH * i + (rowH - barH) / 2,
-    h: barH,
-    op: 1
-  }));
+  
+  let cumDummies = 0;
+  return vis.map((d, i) => {
+    const y = MT + rowH * (i + cumDummies) + (rowH - barH) / 2;
+    cumDummies += (d.dummy_sons || []).length;
+    
+    return {
+      x1: ML + (d.birth_ysc / X_MAX) * cW,
+      x2: ML + (d.son_ysc / X_MAX) * cW,
+      x3: ML + (d.death_ysc / X_MAX) * cW,
+      y: y,
+      h: barH,
+      op: 1
+    };
+  });
 }
 
 function lerp(a,b,t){ return a+(b-a)*t; }
@@ -481,6 +541,17 @@ function drawTimeline(state, vis, n) {
   svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
 
   const cW = W - ML - MR;
+  const cH = H - MT - MB;
+  
+  // Calculate total dummy sons in the dataset
+  let total_dummy_sons = 0;
+  for (let i = 0; i < DATA.length; i++) {
+    total_dummy_sons += (DATA[i].dummy_sons || []).length;
+  }
+  
+  const total_rows = TOTAL + total_dummy_sons;
+  const rowH = Math.max(12, cH / total_rows);
+
   const tickStep = X_MAX<500?50:X_MAX<1500?100:X_MAX<3000?200:500;
   
   let html = '';
@@ -495,10 +566,13 @@ function drawTimeline(state, vis, n) {
 
   for (let i=0;i<n;i++){
     const s=state[i], d=vis[i];
+    if(!s) continue;
     const wB=Math.max(0,s.x2-s.x1), wA=Math.max(0,s.x3-s.x2);
     const op=s.op.toFixed(3);
     const fs=Math.max(9,Math.min(14,s.h*.75));
     const lfs=Math.max(8,Math.min(12,s.h*.6));
+
+    html += `<g class="patriarch-group" data-idx="${i}">`;
 
     // Name + Birth Year
     html+=`<text x="${s.x1-8}" y="${s.y+s.h/2+fs*.35}" text-anchor="end"
@@ -525,17 +599,108 @@ function drawTimeline(state, vis, n) {
     if(wA>22) html+=`<text x="${s.x2+wA/2}" y="${s.y+s.h/2+lfs*.35}" text-anchor="middle"
       fill="rgba(0,0,0,${(s.op*.8).toFixed(3)})" font-size="${lfs}px"
       font-family="Inter,sans-serif" font-weight="600" pointer-events="none">${d.years_after}</text>`;
+
+    // Small strip at the right end of the original bar, only visible when hovered
+    html += `<rect class="add-strip" data-idx="${i}"
+      x="${s.x3 - 8}" y="${s.y}" width="8" height="${s.h}"
+      rx="2" fill="#000000" opacity="0" style="cursor:pointer; transition: opacity 0.2s;"/>`;
+
+    html += `</g>`;
+
+    // Dummy sons
+    const dummySons = d.dummy_sons || [];
+    dummySons.forEach((ds, j) => {
+      const dsY = s.y + rowH * (j + 1);
+      const dsH = s.h; // Same height as all other bars
+      const dsW = (ds.lifespan / X_MAX) * cW; // Dynamic width based on lifespan
+      const dsX = ML + (ds.birth_ysc / X_MAX) * cW;
+      
+      html += `<g class="dummy-group" data-father-idx="${i}" data-dummy-idx="${j}">`;
+
+      // Draw dummy son bar (Light Black / Dark Gray color)
+      html += `<rect class="dummy-seg" data-father-idx="${i}" data-dummy-idx="${j}"
+        x="${dsX}" y="${dsY}" width="${dsW}" height="${dsH}"
+        rx="2" fill="rgba(0, 0, 0, 0.65)" stroke="rgba(0, 0, 0, 0.85)" stroke-width="1.5" opacity="${op}" style="cursor:pointer"/>`;
+
+      // Age text on dummy bar
+      if(dsW>22) html+=`<text x="${dsX+dsW/2}" y="${dsY+dsH/2+lfs*.35}" text-anchor="middle"
+        fill="rgba(255,255,255,${(s.op*.9).toFixed(3)})" font-size="${lfs}px"
+        font-family="Inter,sans-serif" font-weight="600" pointer-events="none">${ds.lifespan}</text>`;
+
+      // Name + Birth Year for dummy son
+      html+=`<text x="${dsX-8}" y="${dsY+dsH/2+fs*.35}" text-anchor="end"
+        fill="rgba(0,0,0,${op})" font-size="${fs}px"
+        font-family="Noto Sans Telugu,Inter,sans-serif" font-weight="600">కుమారుడు ${j+1} – ${ds.birth_ysc}</text>`;
+
+      // Death Year for dummy son
+      html+=`<text x="${dsX+dsW+8}" y="${dsY+dsH/2+fs*.35}" text-anchor="start"
+        fill="rgba(0,0,0,${op})" font-size="${fs}px"
+        font-family="Noto Sans Telugu,Inter,sans-serif" font-weight="600">మరణం – ${ds.death_ysc}</text>`;
+
+      // Delete cross icon at top right corner of the bar
+      const crossCx = dsX + dsW;
+      const crossCy = dsY;
+      html += `<g class="dummy-delete-g" data-father="${i}" data-dummy="${j}" style="cursor:pointer; opacity:0; transition:opacity 0.2s;">
+        <circle cx="${crossCx}" cy="${crossCy}" r="11" fill="#ffffff" opacity="0"/>
+        <circle cx="${crossCx}" cy="${crossCy}" r="7.5" fill="rgba(0, 0, 0, 0.5)" stroke="#ffffff" stroke-width="1"/>
+        <line x1="${crossCx-3.5}" y1="${crossCy-3.5}" x2="${crossCx+3.5}" y2="${crossCy+3.5}" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="${crossCx+3.5}" y1="${crossCy-3.5}" x2="${crossCx-3.5}" y2="${crossCy+3.5}" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+      </g>`;
+
+      html += `</g>`;
+    });
   }
 
   viewportG.innerHTML = html;
   
-  // Click listeners
+  // Event listeners
   viewportG.querySelectorAll('.seg').forEach(el=>{
     el.addEventListener('click', e => {
       if(appContainer.classList.contains('blurred')) return;
       if (hasInteracted && dragDistance > 6) return; // Prevent card triggers when panning
       const idx = +e.target.dataset.idx;
       showTempCard(idx);
+    });
+  });
+
+  // Click listeners for add strips
+  viewportG.querySelectorAll('.add-strip').forEach(el => {
+    el.addEventListener('click', e => {
+      if(appContainer.classList.contains('blurred')) return;
+      e.stopPropagation(); // Prevent opening the patriarch spot card
+      const idx = +el.dataset.idx;
+      showAddSonPopup(idx, el);
+    });
+  });
+
+  // Click listeners for dummy son bars
+  viewportG.querySelectorAll('.dummy-seg').forEach(el=>{
+    el.addEventListener('click', e => {
+      if(appContainer.classList.contains('blurred')) return;
+      if (hasInteracted && dragDistance > 6) return;
+      const fatherIdx = +e.target.dataset.fatherIdx;
+      const dummyIdx = +e.target.dataset.dummyIdx;
+      showDummyCard(fatherIdx, dummyIdx);
+    });
+  });
+
+  // Click listeners for dummy delete buttons
+  viewportG.querySelectorAll('.dummy-delete-g').forEach(el=>{
+    el.addEventListener('click', e => {
+      if(appContainer.classList.contains('blurred')) return;
+      e.stopPropagation(); // Prevent opening the dummy spot card
+      const fatherIdx = +el.getAttribute('data-father');
+      const dummyIdx = +el.getAttribute('data-dummy');
+      
+      // Remove from the dataset
+      DATA[fatherIdx].dummy_sons.splice(dummyIdx, 1);
+      
+      // Close popup if active
+      document.getElementById('dummy-son-popup').style.display = 'none';
+      
+      // Recalculate layout and animate
+      const targetLayout = calcLayout(currentNumBars);
+      animateTimeline(targetLayout, currentNumBars, 400);
     });
   });
 }
@@ -616,15 +781,15 @@ function goToStep(s) {
   const pIndex = Math.floor(globalStep / 2);
   const isCardPhase = (globalStep % 2 === 0);
   
-  const numBars = isCardPhase ? pIndex : pIndex + 1;
+  currentNumBars = isCardPhase ? pIndex : pIndex + 1;
   stepInfo.textContent = `${pIndex + 1} / ${TOTAL} ${isCardPhase ? '(వివరాలు)' : '(చార్టు)'}`;
 
   ensureSVG();
 
   // Auto-center camera on the current active bar ONLY if the user has manually zoomed/panned
-  if (hasInteracted && numBars > 0) {
-    const layout = calcLayout(numBars);
-    const s = layout[numBars - 1];
+  if (hasInteracted && currentNumBars > 0) {
+    const layout = calcLayout(currentNumBars);
+    const s = layout[currentNumBars - 1];
     panTo(s.x1, s.y + s.h / 2, 650);
   }
 
@@ -635,8 +800,8 @@ function goToStep(s) {
     cardEl.classList.add('visible');
     
     // Animate bars silently in background
-    const target = calcLayout(numBars);
-    animateTimeline(target, numBars, 300);
+    const target = calcLayout(currentNumBars);
+    animateTimeline(target, currentNumBars, 300);
   } else {
     // Phase B: Hide Card, Unblur, Animate Bar in
     busy = true;
@@ -644,8 +809,8 @@ function goToStep(s) {
     cardEl.classList.remove('visible');
     
     setTimeout(() => {
-      const target = calcLayout(numBars);
-      animateTimeline(target, numBars, 700);
+      const target = calcLayout(currentNumBars);
+      animateTimeline(target, currentNumBars, 700);
       setTimeout(() => { busy = false; }, 750);
     }, 400); // Wait for unblur & card fade
   }
@@ -660,16 +825,134 @@ addEventListener('keydown', e => {
 // ── Resize ──
 addEventListener('resize', () => {
   const pIndex = Math.floor(globalStep / 2);
-  const numBars = (globalStep % 2 === 0) ? pIndex : pIndex + 1;
-  barState = calcLayout(numBars);
-  drawTimeline(barState, DATA.slice(0,numBars), numBars);
+  currentNumBars = (globalStep % 2 === 0) ? pIndex : pIndex + 1;
+  barState = calcLayout(currentNumBars);
+  drawTimeline(barState, DATA.slice(0, currentNumBars), currentNumBars);
 });
 
 // ── Init ──
 addEventListener('DOMContentLoaded', () => {
   setupZoomPan();
   goToStep(0);
+  setupDummyEvents();
 });
+
+// ── DUMMY SONS STATE & HELPERS ──
+function showDummyCard(fatherIdx, dummyIdx) {
+  if (busy) return;
+  isTempCardOpen = true;
+  appContainer.classList.add('blurred');
+  document.getElementById('spotlight-overlay').classList.add('active');
+  renderDummyCard(fatherIdx, dummyIdx);
+  cardEl.classList.add('visible');
+}
+
+function renderDummyCard(fatherIdx, dummyIdx) {
+  const father = DATA[fatherIdx];
+  const ds = father.dummy_sons[dummyIdx];
+  cardEl.innerHTML = `
+    <div class="spot-name">${father.name} కుమారుడు <span style="color:#888; font-weight:400; font-size:0.85em; margin:0 10px;">(ఇతర కుమారుడు)</span></div>
+    <div class="spot-bar-wrap">
+      <div class="spot-seg before" style="flex:1; background:rgba(0,0,0,0.45); border-color:rgba(0,0,0,0.7);">
+        <div class="spot-seg-inner">
+          <div class="seg-years">${ds.lifespan}</div>
+          <div class="seg-label" style="color:#fff;">కుమారుని జీవిత కాలం</div>
+        </div>
+      </div>
+    </div>
+    <div class="spot-stats">
+      <div class="spot-stat">
+        <span class="spot-stat-label">తండ్రి వయస్సు (జనన సమయంలో)</span>
+        <span class="spot-stat-val">${ds.father_age} సం.</span>
+      </div>
+      <div class="spot-stat">
+        <span class="spot-stat-label">కుమారుని ఆయుష్షు</span>
+        <span class="spot-stat-val" style="color:var(--highlight)">${ds.lifespan} సం.</span>
+      </div>
+      <div class="spot-stat highlight" style="border-color:rgba(0,0,0,0.45); background:rgba(0,0,0,0.03); padding: 4px 10px;">
+        <span class="spot-stat-label" style="color:#555;">సృష్టి నుండి కాలం</span>
+        <span class="spot-stat-val" style="color:#000;">${ds.birth_ysc} – ${ds.death_ysc}</span>
+      </div>
+    </div>
+    <div class="spot-verses">
+      <div class="spot-verse" style="border-left-color:rgba(0,0,0,0.45); padding-left: 10px; line-height: 1.4; font-size: 0.95rem;">
+        <strong>సత్య వివరణ:</strong> ఈ ఇతర కుమారుడు వంశావళిని లెక్కించడానికి ఉపయోగించబడలేదు. అందువల్ల, ఇతని జీవితకాలం లేదా జననసంవత్సరం ప్రధాన కాలక్రమ నిడివిని (ఆదాము నుండి అబ్రాహాము వరకు) ఏ విధంగానూ మార్చదు. కాలక్రమం కేవలం ప్రధాన పితామహుల జనన సంవత్సరాలపై ఆధారపడి ఉంటుంది.
+      </div>
+    </div>
+  `;
+}
+
+function showAddSonPopup(idx, stripEl) {
+  const d = DATA[idx];
+  const s = barState[idx];
+  if (!s) return;
+
+  const rect = tlArea.getBoundingClientRect();
+  // Position popup under the right side of the bar (aligned to the right end)
+  const x = rect.left + (s.x3 * zoomScale + panX) - 260;
+  const y = rect.top + (s.y * zoomScale + panY);
+
+  const popup = document.getElementById('dummy-son-popup');
+  popup.style.left = `${Math.max(8, x)}px`;
+  popup.style.top = `${y + s.h * zoomScale + 8}px`;
+  popup.style.display = 'block';
+  popup.dataset.idx = idx;
+
+  const defaultLifespan = Math.round(d.total / 2);
+  document.getElementById('input-father-age').value = Math.min(100, d.age_at_son);
+  document.getElementById('input-son-lifespan').value = defaultLifespan;
+  
+  const isLimitReached = (d.dummy_sons || []).length >= 10;
+  document.getElementById('popup-limit-msg').style.display = isLimitReached ? 'block' : 'none';
+  
+  const addBtn = document.getElementById('btn-popup-add');
+  addBtn.disabled = isLimitReached;
+  addBtn.style.opacity = isLimitReached ? '0.5' : '1';
+  document.getElementById('father-age-error').style.display = 'none';
+}
+
+function setupDummyEvents() {
+  const popup = document.getElementById('dummy-son-popup');
+  
+  document.getElementById('btn-popup-cancel').addEventListener('click', () => {
+    popup.style.display = 'none';
+  });
+  
+  document.getElementById('btn-popup-add').addEventListener('click', () => {
+    const fatherIdx = +popup.dataset.idx;
+    const d = DATA[fatherIdx];
+    
+    const fatherAge = parseInt(document.getElementById('input-father-age').value);
+    const sonLifespan = parseInt(document.getElementById('input-son-lifespan').value);
+    
+    const ageError = document.getElementById('father-age-error');
+    if (isNaN(fatherAge) || fatherAge <= 0 || fatherAge > d.total) {
+      ageError.innerText = `తండ్రి వయస్సు 1 మరియు ${d.total} మధ్య ఉండాలి!`;
+      ageError.style.display = 'block';
+      return;
+    }
+    if (isNaN(sonLifespan) || sonLifespan <= 0) {
+      return;
+    }
+    
+    if (!d.dummy_sons) d.dummy_sons = [];
+    if (d.dummy_sons.length >= 10) {
+      return;
+    }
+    
+    d.dummy_sons.push({
+      father_age: fatherAge,
+      lifespan: sonLifespan,
+      birth_ysc: d.birth_ysc + fatherAge,
+      death_ysc: d.birth_ysc + fatherAge + sonLifespan
+    });
+    
+    popup.style.display = 'none';
+    
+    const targetLayout = calcLayout(currentNumBars);
+    animateTimeline(targetLayout, currentNumBars, 500);
+  });
+}
 </script>
 </body>
 </html>
