@@ -10,7 +10,7 @@
 
 :root {
   --bg: #ffffff;
-  --accent: #d32f2f; /* Red */
+  --accent: #1976d2; /* Blue */
   --highlight: #000000; /* Black for fonts that were yellow */
   --text: #000000;
   --glass: rgba(255, 255, 255, 0.95);
@@ -166,7 +166,7 @@ header p { font-size:1.05rem; opacity:.75; margin-top:4px; }
   border: 2px solid var(--accent);
   border-radius: 8px;
   padding: 10px 16px;
-  background-color: rgba(211, 47, 47, 0.06);
+  background-color: rgba(25, 118, 210, 0.06);
 }
 .spot-stat-label { font-size:1.05rem; letter-spacing:0.5px; opacity:.8; margin-bottom:4px; font-weight:600; }
 .spot-stat-val { font-size:1.9rem; font-weight:700; color:var(--accent); }
@@ -192,7 +192,7 @@ rect.seg:hover { filter: brightness(1.1); }
 #dummy-son-popup input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
 }
 #btn-popup-cancel:hover { background: #ddd; }
 #btn-popup-add:hover:not(:disabled) { filter: brightness(1.1); }
@@ -210,7 +210,7 @@ rect.dummy-seg:hover { filter: brightness(1.1); }
   opacity: 1 !important;
 }
 .dummy-delete-g:hover circle {
-  fill: #d32f2f !important;
+  fill: #1976d2 !important;
 }
 </style>
 </head>
@@ -626,11 +626,10 @@ function drawTimeline(state, vis, n) {
       if(dsW>22) html+=`<text x="${dsX+dsW/2}" y="${dsY+dsH/2+lfs*.35}" text-anchor="middle"
         fill="rgba(255,255,255,${(s.op*.9).toFixed(3)})" font-size="${lfs}px"
         font-family="Inter,sans-serif" font-weight="600" pointer-events="none">${ds.lifespan}</text>`;
-
       // Name + Birth Year for dummy son
       html+=`<text x="${dsX-8}" y="${dsY+dsH/2+fs*.35}" text-anchor="end"
         fill="rgba(0,0,0,${op})" font-size="${fs}px"
-        font-family="Noto Sans Telugu,Inter,sans-serif" font-weight="600">కుమారుడు ${j+1} – ${ds.birth_ysc}</text>`;
+        font-family="Noto Sans Telugu,Inter,sans-serif" font-weight="600">కుమారుడు ${j+2} – ${ds.birth_ysc}</text>`;
 
       // Death Year for dummy son
       html+=`<text x="${dsX+dsW+8}" y="${dsY+dsH/2+fs*.35}" text-anchor="start"
@@ -708,8 +707,22 @@ function drawTimeline(state, vis, n) {
 // ═══════════════ SPOTLIGHT CARD ═══════════════
 function renderCard(d, idx) {
   const sonName = idx < DATA.length - 1 ? DATA[idx + 1].name : "ఇస్సాకు";
+  const prev = idx > 0 ? DATA[idx - 1] : null;
+  const formulaHtml = idx === 0 
+    ? `<div style="font-size: 0.95rem; line-height: 1.5; color: #333; background: rgba(25,118,210,0.04); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-family: 'Noto Sans Telugu', 'Inter', sans-serif;">
+        <strong>${d.name} జన్మించిన సంవత్సరం:</strong><br/>
+        ఆదాము మొదటి పితామహుడు. ఆయన కాలక్రమం సృష్టి యొక్క ప్రారంభం (సంవత్సరం <strong>0</strong>) నుండి లెక్కించబడుతుంది.
+       </div>`
+    : `<div style="font-size: 0.95rem; line-height: 1.5; color: #333; background: rgba(25,118,210,0.04); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-family: 'Noto Sans Telugu', 'Inter', sans-serif;">
+        <strong>${d.name} జన్మించిన సంవత్సరం:</strong><br/>
+        ${prev.name} జన్మించిన సంవత్సరం (<strong>${prev.birth_ysc}</strong>) + గడిచిన సంవత్సరాలు ${d.name} పుట్టే వరకు (<strong>${prev.age_at_son}</strong>) = ${d.name} జన్మించిన సంవత్సరం (<strong>${d.birth_ysc}</strong>)
+       </div>`;
+
   cardEl.innerHTML = `
     <div class="spot-name">${d.name} <span style="color:#888; font-weight:400; font-size:0.85em; margin:0 10px;">&rarr;</span> <span style="color:var(--accent)">${sonName}</span></div>
+    
+    ${formulaHtml}
+
     <div class="spot-bar-wrap">
       <div class="spot-seg before" style="flex:${d.age_at_son}">
         <div class="spot-seg-inner">
@@ -742,6 +755,7 @@ function renderCard(d, idx) {
         <span class="spot-stat-val" style="color:var(--highlight)">${d.birth_ysc} – ${d.death_ysc}</span>
       </div>
     </div>
+
     <div class="spot-verses">
       <div class="spot-verse"><strong>${d.ref_son}:</strong> ${d.verse_son}</div>
       <div class="spot-verse"><strong>${d.ref_after}:</strong> ${d.verse_after}</div>
