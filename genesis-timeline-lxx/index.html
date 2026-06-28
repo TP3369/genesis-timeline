@@ -593,7 +593,7 @@ function drawTimeline(state, vis, n) {
     html+=`<rect class="seg" data-idx="${i}" data-period="before"
       x="${s.x1}" y="${s.y}" width="${wB}" height="${s.h}"
       rx="2" fill="var(--accent)" opacity="${op}" style="cursor:pointer"/>`;
-    if(wB>22) html+=`<text x="${s.x1+wB/2}" y="${s.y+s.h/2+lfs*.35}" text-anchor="middle"
+    if(wB>14) html+=`<text x="${s.x1+wB/2}" y="${s.y+s.h/2+lfs*.35}" text-anchor="middle"
       fill="rgba(255,255,255,${(s.op*.9).toFixed(3)})" font-size="${lfs}px"
       font-family="Inter,sans-serif" font-weight="600" pointer-events="none">${d.age_at_son}</text>`;
 
@@ -601,7 +601,7 @@ function drawTimeline(state, vis, n) {
     html+=`<rect class="seg" data-idx="${i}" data-period="after"
       x="${s.x2}" y="${s.y}" width="${wA}" height="${s.h}"
       rx="2" fill="#ffffff" stroke="#000000" stroke-width="1.5" opacity="${op}" style="cursor:pointer"/>`;
-    if(wA>22) html+=`<text x="${s.x2+wA/2}" y="${s.y+s.h/2+lfs*.35}" text-anchor="middle"
+    if(wA>14) html+=`<text x="${s.x2+wA/2}" y="${s.y+s.h/2+lfs*.35}" text-anchor="middle"
       fill="rgba(0,0,0,${(s.op*.8).toFixed(3)})" font-size="${lfs}px"
       font-family="Inter,sans-serif" font-weight="600" pointer-events="none">${d.years_after}</text>`;
 
@@ -628,7 +628,7 @@ function drawTimeline(state, vis, n) {
         rx="2" fill="rgba(0, 0, 0, 0.65)" stroke="rgba(0, 0, 0, 0.85)" stroke-width="1.5" opacity="${op}" style="cursor:pointer"/>`;
 
       // Age text on dummy bar
-      if(dsW>22) html+=`<text x="${dsX+dsW/2}" y="${dsY+dsH/2+lfs*.35}" text-anchor="middle"
+      if(dsW>14) html+=`<text x="${dsX+dsW/2}" y="${dsY+dsH/2+lfs*.35}" text-anchor="middle"
         fill="rgba(255,255,255,${(s.op*.9).toFixed(3)})" font-size="${lfs}px"
         font-family="Inter,sans-serif" font-weight="600" pointer-events="none">${ds.lifespan}</text>`;
       // Name + Birth Year for dummy son
