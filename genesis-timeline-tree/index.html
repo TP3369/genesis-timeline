@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ఆдиకాండము వంశవృక్ష కాలక్రమము: చైన్ లింక్ దృశ్యీకరణ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg: #fcfcfc;
+  --accent: #1976d2; /* Default to Hebrew Blue, toggles with dataset */
+  --highlight: #000000;
+  --text: #1a1a1a;
+  --glass: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.12);
+  --node-width: 170px;
+  --node-height: 70px;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: 'Noto Sans Telugu', 'Inter', sans-serif;
+  color: var(--text);
+  user-select: none;
+}
+
+/* ── LAYOUT ── */
+#app {
+  position: fixed; inset: 0; z-index: 2;
+  display: flex; flex-direction: row;
+  transition: filter 0.6s ease;
+}
+#app.blurred {
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+header {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 80px; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 30px;
+  background: linear-gradient(to bottom, rgba(255,255,255,.98) 50%, rgba(255,255,255,0));
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.header-title-area h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 2px;
+}
+.header-title-area p {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.controls-area {
+  display: flex; align-items: center; gap: 20px;
+}
+
+/* Toggle Switch */
+.toggle-container {
+  display: flex; align-items: center;
+  background: rgba(0,0,0,0.06);
+  padding: 4px; border-radius: 30px;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.toggle-btn {
+  padding: 8px 18px; border-radius: 20px;
+  font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none; background: transparent; color: #555;
+}
+.toggle-btn.active {
+  background: #ffffff;
+  color: var(--accent);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.home-control {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 15;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.control-btn-home {
+  height: 32px;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: #fff;
+  color: #000;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  gap: 6px;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+  font-family: 'Inter', 'Noto Sans Telugu', sans-serif;
+}
+.control-btn-home:hover {
+  background: #000;
+  color: #fff;
+}
+.control-btn-home:active {
+  transform: scale(0.95);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  margin-right: 15px;
+}
+.checkbox-container input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* ── TREE VIEW CANVAS ── */
+#canvas-container {
+  flex: 1; height: 100%;
+  position: relative; overflow: hidden;
+  cursor: grab;
+}
+#canvas-container:active {
+  cursor: grabbing;
+}
+#tree-canvas {
+  width: 100%; height: 100%;
+  display: block;
+}
+
+/* ── DETAILED DRAWER ── */
+#details-panel {
+  width: 440px; height: 100%;
+  background: var(--glass);
+  border-left: 1px solid var(--glass-border);
+  display: flex; flex-direction: column;
+  box-shadow: -10px 0 40px rgba(0,0,0,0.04);
+  z-index: 5;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#details-panel.hidden {
+  transform: translateX(100%);
+}
+.panel-header {
+  padding: 24px 30px;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-header h2 {
+  font-size: 1.4rem; font-weight: 700; color: #111;
+}
+.btn-close-panel {
+  background: transparent; border: none;
+  font-size: 1.5rem; color: #777; cursor: pointer;
+  padding: 4px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; width: 36px; height: 36px; transition: background 0.2s;
+}
+.btn-close-panel:hover {
+  background: rgba(0,0,0,0.05); color: #000;
+}
+
+.panel-content {
+  flex: 1; overflow-y: auto; padding: 30px;
+}
+
+/* ── POPUP WINDOW ── */
+#popup-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.4);
+  z-index:100; display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+#popup-overlay.visible { opacity:1; pointer-events:auto; }
+#dummy-son-popup {
+  background: #ffffff; width:380px; border-radius:20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  padding: 30px; border: 1px solid rgba(0,0,0,0.1);
+  transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#popup-overlay.visible #dummy-son-popup { transform: scale(1); }
+
+.popup-title { font-size:1.3rem; font-weight:700; margin-bottom:20px; color:#111; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:11px; color:#666; margin-bottom:4px; font-weight:600; }
+.form-group input {
+  width:100%; padding:10px 14px; border-radius:8px; border:1px solid #ccc;
+  font-size:0.95rem; font-family:inherit; transition: border-color 0.2s;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+}
+.popup-buttons { display:flex; justify-content:flex-end; gap:12px; margin-top:24px; }
+.popup-btn {
+  padding:10px 20px; border-radius:8px; border:none; font-size:0.9rem; font-weight:700; cursor:pointer;
+  transition: all 0.2s;
+}
+#btn-popup-cancel { background:#eee; color:#333; }
+#btn-popup-cancel:hover { background:#e0e0e0; }
+#btn-popup-add { background:var(--accent); color:#fff; }
+#btn-popup-add:hover:not(:disabled) { filter: brightness(1.1); }
+#btn-popup-add:disabled { opacity:0.5; cursor:not-allowed; }
+.error-msg { color:#d32f2f; font-size:11px; margin-top:4px; font-weight:600; display:none; }
+
+/* ── SVG ELEMENT STYLING ── */
+.tree-node {
+  cursor: pointer;
+}
+.tree-node rect {
+  fill: #ffffff;
+  stroke: var(--glass-border);
+  stroke-width: 1.5;
+  rx: 12;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.03));
+}
+.tree-node:hover rect {
+  stroke: var(--accent);
+  transform: translateY(-3px);
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.08));
+}
+.tree-node.active rect {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  fill: rgba(25, 118, 210, 0.02);
+}
+.tree-node.dummy rect {
+  stroke-dasharray: 4 4;
+  fill: #fafafa;
+}
+.tree-node.dummy:hover rect {
+  stroke: #ff9800;
+  fill: rgba(255, 152, 0, 0.02);
+}
+
+.node-text-name {
+  font-family: 'Noto Sans Telugu', 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  fill: #111;
+}
+.node-text-year {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  fill: #666;
+}
+
+.tree-link {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.12);
+  stroke-width: 2;
+  transition: stroke 0.3s;
+}
+.tree-link.dummy-link {
+  stroke: rgba(0, 0, 0, 0.08);
+  stroke-dasharray: 4 4;
+}
+
+/* Plus/Delete Button Overlay icons */
+.node-action-btn {
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.tree-node:hover .node-action-btn {
+  opacity: 1;
+}
+.node-action-btn circle {
+  fill: #ffffff;
+  stroke: #ddd;
+  stroke-width: 1;
+  transition: fill 0.2s, stroke 0.2s;
+}
+.node-action-btn:hover circle {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.node-action-btn.btn-delete:hover circle {
+  fill: #d32f2f;
+  stroke: #d32f2f;
+}
+.node-action-btn path {
+  fill: #555;
+  transition: fill 0.2s;
+}
+.node-action-btn:hover path {
+  fill: #ffffff;
+}
+
+/* ── SPOTLIGHT DETAILS STYLING ── */
+.spot-name {
+  font-size: 1.8rem; font-weight: 700; color: #111;
+  margin-bottom: 24px; font-family: 'Noto Sans Telugu', serif;
+}
+.spot-stat-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;
+}
+.spot-stat {
+  background: rgba(0,0,0,0.02);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 12px; padding: 14px;
+}
+.spot-stat.highlight {
+  border: 2px solid var(--accent);
+  background-color: rgba(25, 118, 210, 0.03);
+}
+.spot-stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; margin-bottom: 4px; font-weight: 700; }
+.spot-stat-val { font-size: 1.5rem; font-weight: 700; color: #111; }
+.spot-stat.highlight .spot-stat-val { color: var(--accent); }
+
+.spot-verses { margin-top: 30px; }
+.spot-verses h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #444; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+.spot-verse {
+  font-size: 1rem; line-height: 1.7;
+  border-left: 4px solid var(--accent); padding-left: 14px; margin-bottom: 20px;
+  color: #222;
+}
+.spot-verse-ref {
+  font-size: 0.8rem; font-weight: 700; color: #666; margin-top: 4px; display: block;
+}
+
+/* ── CANVAS CONTROLS ── */
+#canvas-controls {
+  position: absolute; bottom: 30px; left: 30px;
+  display: flex; gap: 10px; z-index: 10;
+}
+.control-btn {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: #ffffff; border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  font-weight: bold; font-size: 1.1rem; color: #555;
+  transition: all 0.2s;
+}
+.control-btn:hover {
+  background: #f5f5f5; color: #000; border-color: #999;
+}
+
+/* Background Glow animation */
+.bg-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(25, 118, 210, 0.04) 0%, transparent 70%);
+  top: 50%; left: 40%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  filter: blur(50px);
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+  <div class="bg-glow" id="glow-backdrop"></div>
+
+  <div class="home-control">
+    <a href="../index.html" class="control-btn-home" style="text-decoration: none;" title="Home">
+      <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      Home
+    </a>
+  </div>
+
+  <div id="app">
+    <header>
+      <div class="header-title-area">
+        <h1>ఆదికాండము వంశవృక్షము</h1>
+        <p id="sub-title">ఆదాము నుండి అబ్రాహాము వరకు చైన్ లింక్ కాలక్రమ దృశ్యీకరణ</p>
+      </div>
+      <div class="controls-area" style="margin-right: 120px;">
+        <!-- Checkbox for Numbers View -->
+        <label class="checkbox-container">
+          <input type="checkbox" id="chk-show-numbers" onchange="toggleNumbersView()">
+          <span>సంఖ్యలను చూపించు (Show Numbers)</span>
+        </label>
+        <!-- Toggle Switch -->
+        <div class="toggle-container">
+          <button class="toggle-btn active" id="btn-heb" onclick="setDataset('HEB')">హెబ్రీ మసోరెటిక్ (Hebrew)</button>
+          <button class="toggle-btn" id="btn-lxx" onclick="setDataset('LXX')">గ్రీకు సెప్టాజింట్ (LXX)</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tree SVG container -->
+    <div id="canvas-container">
+      <svg id="tree-canvas">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(0,0,0,0.15)"/>
+          </marker>
+        </defs>
+        <g id="zoom-group">
+          <!-- SVGLines & SVGCurves drawn here -->
+          <g id="links-group"></g>
+          <!-- SVG Nodes drawn here -->
+          <g id="nodes-group"></g>
+        </g>
+      </svg>
+
+      <!-- Zoom Controls -->
+      <div id="canvas-controls">
+        <button class="control-btn" onclick="adjustZoom(1.2)" title="Zoom In">+</button>
+        <button class="control-btn" onclick="adjustZoom(1/1.2)" title="Zoom Out">−</button>
+        <button class="control-btn" onclick="resetCanvas()" title="Reset View">&#8635;</button>
+      </div>
+    </div>
+
+    <!-- Side details panel -->
+    <div id="details-panel" class="hidden">
+      <div class="panel-header">
+        <h2 id="panel-title-text">వివరాలు</h2>
+        <button class="btn-close-panel" onclick="closeDetailsPanel()">&times;</button>
+      </div>
+      <div class="panel-content" id="panel-content-body">
+        <!-- Content gets dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup input overlay -->
+  <div id="popup-overlay">
+    <div id="dummy-son-popup">
+      <div class="popup-title">ఇతర కుమారుడిని జోడించు</div>
+      <div class="form-group">
+        <label for="input-son-name">కుమారుని పేరు:</label>
+        <input type="text" id="input-son-name" placeholder="ఉదా: కయీను, హేబెలు">
+      </div>
+      <div class="form-group">
+        <label for="input-father-age">జన్మించినప్పుడు తండ్రి వయస్సు:</label>
+        <input type="number" id="input-father-age" placeholder="వయస్సు (ఉదా: 130)">
+        <div class="error-msg" id="error-father-age">తండ్రి వయస్సు గరిష్ట జీవితకాలం కంటే తక్కువగా ఉండాలి!</div>
+      </div>
+      <div class="form-group">
+        <label for="input-lifespan">జీవితకాలం (సంవత్సరాలు):</label>
+        <input type="number" id="input-lifespan" placeholder="జీవితకాలం (ఉదా: 900)">
+      </div>
+      <div class="popup-buttons">
+        <button class="popup-btn" id="btn-popup-cancel" onclick="closePopup()">రద్దు</button>
+        <button class="popup-btn" id="btn-popup-add" onclick="addDummySonSubmit()">జోడించు</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ═══════════════ DATASETS ═══════════════
+const DATA_LXX = [
+  {name:"ఆదాము",age_at_son:230,years_after:700,total:930,birth_ysc:0,son_ysc:230,death_ysc:930,ref_son:"ఆదికాండము 5:3",ref_after:"ఆదికాండము 5:4-5",verse_son:"ఆదాము రెండు వందల ముప్పది ఏండ్లు బ్రదికి తన పోలికెగా తన స్వరూపమున ఒకకుమారుని కని అతనికి షేతు అను పేరు పెట్టెను.",verse_after:"ఆదాము షేతును కనిన తరువాత అతడు బ్రదికిన దినములు ఏడు వందల ఏండ్లు; అతడు కుమారులను కుమార్తెలను కనెను. ఆదాము బ్రదికిన దినములన్నియు తొమ్మిది వందల ముప్పది ఏండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"షేతు",age_at_son:205,years_after:707,total:912,birth_ysc:230,son_ysc:435,death_ysc:1142,ref_son:"ఆదికాండము 5:6",ref_after:"ఆదికాండము 5:7-8",verse_son:"షేతు రెండు వందల అయిదేండ్లు బ్రదికి ఎనోషును కనెను.",verse_after:"షేతు ఎనోషును కనిన తరువాత ఏడు వందల ఏడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. షేతు బ్రదికిన దినములన్నియు తొమ్మిది వందల పన్నెండేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"ఎనోషు",age_at_son:190,years_after:715,total:905,birth_ysc:435,son_ysc:625,death_ysc:1340,ref_son:"ఆదికాండము 5:9",ref_after:"ఆదికాండము 5:10-11",verse_son:"ఎనోషు నూట తొంబది ఏండ్లు బ్రదికి కేనానును కనెను.",verse_after:"ఎనోషు కేనానును కనిన తరువాత ఏడు వందల పదునయిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. ఎనోషు బ్రదికిన దినములన్నియు తొమ్మిది వందల అయిదేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"కేనాను",age_at_son:170,years_after:740,total:910,birth_ysc:625,son_ysc:795,death_ysc:1535,ref_son:"ఆదికాండము 5:12",ref_after:"ఆదికాండము 5:13-14",verse_son:"కేనాను నూట డెబ్బది ఏండ్లు బ్రదికి మహలలేలును కనెను.",verse_after:"కేనాను మహలలేలును కనిన తరువాత ఏడు వందల నలువది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. కేనాను బ్రదికిన దినములన్నియు తొమ్మిది వందల పదియేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"మహలలేలు",age_at_son:165,years_after:730,total:895,birth_ysc:795,son_ysc:960,death_ysc:1690,ref_son:"ఆదికాండము 5:15",ref_after:"ఆదికాండము 5:16-17",verse_son:"మహలలేలు నూట అరువది అయిదేండ్లు బ్రదికి యెరెదును కనెను.",verse_after:"మహలలేలు యెరెదును కనిన తరువాత ఏడు వందల ముప్పది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. మహలలేలు బ్రదికిన దినములన్నియు ఎనిమిది వందల తొంబది అయిదేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"యెరెదు",age_at_son:162,years_after:800,total:962,birth_ysc:960,son_ysc:1122,death_ysc:1922,ref_son:"ఆదికాండము 5:18",ref_after:"ఆదికాండము 5:19-20",verse_son:"యెరెదు నూట అరువది రెండేండ్లు బ్రదికి హనోకును కనెను.",verse_after:"యెరెదు హనోకును కనిన తరువాత ఎనిమిది వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను.యెరెదు బ్రదికిన దినములన్నియు తొమ్మిది వందల అరువది రెండేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"హనోకు",age_at_son:165,years_after:200,total:365,birth_ysc:1122,son_ysc:1287,death_ysc:1487,ref_son:"ఆదికాండము 5:21",ref_after:"ఆదికాండము 5:22-24",verse_son:"హనోకు నూట అరువది అయిదేండ్లు బ్రదికి మెతూషెలను కనెను.",verse_after:"హనోకు మెతూషెలను కనిన తరువాత రెండు వందల ఏండ్లు దేవునితో నడుచుచు కుమారులను కుమార్తెలను కనెను. హనోకు బ్రదికిన దినములన్నియు మూడు వందల అరువది అయిదేండ్లు. హనోకు దేవునితో నడిచిన తరువాత దేవుడతని తీసికొనిపోయెను."},
+  {name:"మెతూషెల",age_at_son:167,years_after:802,total:969,birth_ysc:1287,son_ysc:1454,death_ysc:2256,ref_son:"ఆదికాండము 5:25",ref_after:"ఆదికాండము 5:26-27",verse_son:"మెతూషెల నూట అరువది ఏడేండ్లు బ్రదికి లెమెకును కనెను.",verse_after:"మెతూషెల లెమెకును కనిన తరువాత ఎనిమిది వందల రెండేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. మెతూషెల బ్రదికిన దినములన్నియు తొమ్మిది వందల అరువది తొమ్మిదేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"లెమెకు",age_at_son:188,years_after:565,total:753,birth_ysc:1454,son_ysc:1642,death_ysc:2207,ref_son:"ఆదికాండము 5:28-29",ref_after:"ఆదికాండము 5:30-31",verse_son:"లెమెకు నూట ఎనుబది ఎనిమిది ఏండ్లు బ్రదికి ఒక కుమారుని కని నోవహు అను పేరు పెట్టెను.",verse_after:"లెమెకు నోవహును కనిన తరువాత ఐదు వందల అరువది అయిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. లెమెకు బ్రదికిన దినములన్నియు ఏడు వందల ఏబది మూడేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"నోవహు",age_at_son:500,years_after:450,total:950,birth_ysc:1642,son_ysc:2142,death_ysc:2592,ref_son:"ఆదికాండము 5:32",ref_after:"ఆదికాండము 9:28-29",verse_son:"నోవహు ఐదు వందల ఏండ్లవాడై షేమును హామును యాపెతును కనెను.",verse_after:"జలప్రళయము తరువాత నోవహు మూడు వందల ఏబది ఏండ్లు బ్రదికెను. నోవహు దినములన్నియు తొమ్మిది వందల ఏబది ఏండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"షేము",age_at_son:100,years_after:500,total:600,birth_ysc:2142,son_ysc:2242,death_ysc:2742,ref_son:"ఆదికాండము 11:10",ref_after:"ఆదికాండము 11:11",verse_son:"జలప్రళయము గతించిన రెండేండ్లకు షేము నూరేండ్లవాడై అర్పక్షదును కనెను.",verse_after:"షేము అర్పక్షదును కనిన తరువాత ఐదు వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"అర్పక్షదు",age_at_son:135,years_after:400,total:535,birth_ysc:2242,son_ysc:2377,death_ysc:2777,ref_son:"ఆదికాండము 11:12",ref_after:"ఆదికాండము 11:13",verse_son:"అర్పక్షదు నూట ముప్పది అయిదేండ్లు బ్రదికి కయీనానును కనెను.",verse_after:"అర్పక్షదు కయీనానును కనిన తరువాత నాలుగు వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"కయీనాను",age_at_son:130,years_after:330,total:460,birth_ysc:2377,son_ysc:2507,death_ysc:2837,ref_son:"ఆదికాండము 11:13a (LXX)",ref_after:"ఆదికాండము 11:13b (LXX)",verse_son:"కయీనాను నూట ముప్పది ఏండ్లు బ్రదికి షేలహును కనెను.",verse_after:"కయీనాను షేలహును కనిన తరువాత మూడు వందల ముప్పది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"షేలహు",age_at_son:130,years_after:330,total:460,birth_ysc:2507,son_ysc:2637,death_ysc:2967,ref_son:"ఆదికాండము 11:14",ref_after:"ఆదికాండము 11:15",verse_son:"షేలహు నూట ముప్పది ఏండ్లు బ్రదికి ఏబెరును కనెను.",verse_after:"షేలహు ఏబెరును కనిన తరువాత మూడు వందల ముప్పది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"ఏబెరు",age_at_son:134,years_after:270,total:404,birth_ysc:2637,son_ysc:2771,death_ysc:3041,ref_son:"ఆదికాండము 11:16",ref_after:"ఆదికాండము 11:17",verse_son:"ఏబెరు నూట ముప్పది నాలుగేండ్లు బ్రదికి పెలెగును కనెను.",verse_after:"ఏబెరు పెలెగును కనిన తరువాత రెండు వందల డెబ్బది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"పెలెగు",age_at_son:130,years_after:209,total:339,birth_ysc:2771,son_ysc:2901,death_ysc:3110,ref_son:"ఆదికాండము 11:18",ref_after:"ఆదికాండము 11:19",verse_son:"పెలెగు నూట ముప్పది ఏండ్లు బ్రదికి రయూను కనెను.",verse_after:"పెలెగు రయూను కనిన తరువాత రెండు వందల తొమ్మిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"రయూ",age_at_son:132,years_after:207,total:339,birth_ysc:2901,son_ysc:3033,death_ysc:3240,ref_son:"ఆదికాండము 11:20",ref_after:"ఆదికాండము 11:21",verse_son:"రయూ నూట ముప్పది రెండేండ్లు బ్రదికి సెరూగును కనెను.",verse_after:"రయూ సెరూగును కనిన తరువాత రెండు వందల ఏడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"సెరూగు",age_at_son:130,years_after:200,total:330,birth_ysc:3033,son_ysc:3163,death_ysc:3363,ref_son:"ఆదికాండము 11:22",ref_after:"ఆదికాండము 11:23",verse_son:"సెరూగు నూట ముప్పది ఏండ్లు బ్రదికి నాహోరును కనెను.",verse_after:"సెరూగు నాహోరును కనిన తరువాత రెండు వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"నాహోరు",age_at_son:179,years_after:125,total:304,birth_ysc:3163,son_ysc:3342,death_ysc:3467,ref_son:"ఆదికాండము 11:24",ref_after:"ఆదికాండము 11:25",verse_son:"నాహోరు నూట డెబ్బది తొమ్మిదేండ్లు బ్రదికి తెరహును కనెను.",verse_after:"నాహోరు తెరహును కనిన తరువాత నూట ఇరువది అయిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"తెరహు",age_at_son:70,years_after:135,total:205,birth_ysc:3342,son_ysc:3412,death_ysc:3547,ref_son:"ఆదికాండము 11:26",ref_after:"ఆదికాండము 11:32",verse_son:"తెరహు డెబ్బది ఏండ్లు బ్రదికి అబ్రామును నాహోరును హారానును కనెను.",verse_after:"తెరహు బ్రదికిన దినములు రెండు వందల అయిదేండ్లు. తెరహు హారానులో మృతిబొందెను."},
+  {name:"అబ్రాహాము",age_at_son:100,years_after:75,total:175,birth_ysc:3412,son_ysc:3512,death_ysc:3587,ref_son:"ఆదికాండము 21:5",ref_after:"ఆదికాండము 25:7",verse_son:"అబ్రాహాము కుమారుడైన ఇస్సాకు అతనికి పుట్టినప్పుడు అతడు నూరేండ్లవాడు.",verse_after:"అబ్రాహాము బ్రదికిన ఆయుష్కాలపు సంవత్సరములు నూట డెబ్బది యయిదు."}
+];
+
+const DATA_HEB = [
+  {name:"ఆదాము",age_at_son:130,years_after:800,total:930,birth_ysc:0,son_ysc:130,death_ysc:930,ref_son:"ఆదికాండము 5:3",ref_after:"ఆదికాండము 5:4-5",verse_son:"ఆదాము నూట ముప్పది ఏండ్లు బ్రదికి తన పోలికెగా తన స్వరూపమున ఒక కుమారుని కని అతనికి షేతు అను పేరు పెట్టెను.",verse_after:"ఆదాము షేతును కనిన తరువాత అతడు బ్రదికిన దినములు ఎనిమిది వందల ఏండ్లు; అతడు కుమారులను కుమార్తెలను కనెను. ఆదాము బ్రదికిన దినములన్నియు తొమ్మిది వందల ముప్పది ఏండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"షేతు",age_at_son:105,years_after:807,total:912,birth_ysc:130,son_ysc:235,death_ysc:1042,ref_son:"ఆదికాండము 5:6",ref_after:"ఆదికాండము 5:7-8",verse_son:"షేతు నూట అయిదేండ్లు బ్రదికి ఎనోషును కనెను.",verse_after:"షేతు ఎనోషును కనిన తరువాత ఎనిమిది వందల ఏడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. షేతు బ్రదికిన దినములన్నియు తొమ్మిది వందల పన్నెండేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"ఎనోషు",age_at_son:90,years_after:815,total:905,birth_ysc:235,son_ysc:325,death_ysc:1140,ref_son:"ఆదికాండము 5:9",ref_after:"ఆదికాండము 5:10-11",verse_son:"ఎనోషు తొంబది ఏండ్లు బ్రదికి కేనానును కనెను.",verse_after:"ఎనోషు కేనానును కనిన తరువాత ఎనిమిది వందల పదునయిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. ఎనోషు బ్రదికిన దినములన్నియు తొమ్మిది వందల అయిదేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"కేనాను",age_at_son:70,years_after:840,total:910,birth_ysc:325,son_ysc:395,death_ysc:1235,ref_son:"ఆదికాండము 5:12",ref_after:"ఆదికాండము 5:13-14",verse_son:"కేనాను డెబ్బది ఏండ్లు బ్రదికి మహలలేలును కనెను.",verse_after:"కేనాను మహలలేలును కనిన తరువాత ఎనిమిది వందల నలువది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. కేనాను బ్రదికిన దినములన్నియు తొమ్మిది వందల పదియేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"మహలలేలు",age_at_son:65,years_after:830,total:895,birth_ysc:395,son_ysc:460,death_ysc:1290,ref_son:"ఆదికాండము 5:15",ref_after:"ఆదికాండము 5:16-17",verse_son:"మహలలేలు అరువది అయిదేండ్లు బ్రదికి యెరెదును కనెను.",verse_after:"మహలలేలు యెరెదును కనిన తరువాత ఎనిమిది వందల ముప్పది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. మహలలేలు బ్రదికిన దినములన్నియు ఎనిమిది వందల తొంబది అయిదేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"యెరెదు",age_at_son:162,years_after:800,total:962,birth_ysc:460,son_ysc:622,death_ysc:1422,ref_son:"ఆదికాండము 5:18",ref_after:"ఆదికాండము 5:19-20",verse_son:"యెరెదు నూట అరువది రెండేండ్లు బ్రదికి హనోకును కనెను.",verse_after:"యెరెదు హనోకును కనిన తరువాత ఎనిమిది వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. యెరెదు బ్రదికిన దినములన్నియు తొమ్మిది వందల అరువది రెండేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"హనోకు",age_at_son:65,years_after:300,total:365,birth_ysc:622,son_ysc:687,death_ysc:987,ref_son:"ఆదికాండము 5:21",ref_after:"ఆదికాండము 5:22-24",verse_son:"హనోకు అరువది అయిదేండ్లు బ్రదికి మెతూషెలను కనెను.",verse_after:"హనోకు మెతూషెలను కనిన తరువాత మూడు వందల ఏండ్లు దేవునితో నడుచుచు కుమారులను కుమార్తెలను కనెను. హనోకు బ్రదికిన దినములన్నియు మూడు వందల అరువది అయిదేండ్లు. హనోకు దేవునితో నడిచిన తరువాత దేవుడతని తీసికొనిపోయెను గనుక అతడు లేకపోయెను."},
+  {name:"మెతూషెల",age_at_son:187,years_after:782,total:969,birth_ysc:687,son_ysc:874,death_ysc:1656,ref_son:"ఆదికాండము 5:25",ref_after:"ఆదికాండము 5:26-27",verse_son:"మెతూషెల నూట ఎనుబది ఏడేండ్లు బ్రదికి లెమెకును కనెను.",verse_after:"మెతూషెల లెమెకును కనిన తరువాత ఏడు వందల ఎనుబది రెండేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. మెతూషెల బ్రదికిన దినములన్నియు తొమ్మిది వందల అరువది తొమ్మిదేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"లెమెకు",age_at_son:182,years_after:595,total:777,birth_ysc:874,son_ysc:1056,death_ysc:1651,ref_son:"ఆదికాండము 5:28-29",ref_after:"ఆదికాండము 5:30-31",verse_son:"లెమెకు నూట ఎనుబది రెండేండ్లు బ్రదికి ఒక కుమారుని కని యెహోవా శపించిన యీ నేలవలన కలిగిన మన పనిలోను, మన చేతుల కష్టములోను ఇతడు మనకు నెమ్మది కలుగజేయుననుకొని అతనికి నోవహు అను పేరు పెట్టెను.",verse_after:"లెమెకు నోవహును కనిన తరువాత ఐదు వందల తొంబది అయిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను. లెమెకు బ్రదికిన దినములన్నియు ఏడు వందల డెబ్బది ఏడేండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"నోవహు",age_at_son:500,years_after:450,total:950,birth_ysc:1056,son_ysc:1556,death_ysc:2006,ref_son:"ఆదికాండము 5:32",ref_after:"ఆదికాండము 9:28-29",verse_son:"నోవహు ఐదు వందల ఏండ్లవాడై షేమును హామును యాపెతును కనెను.",verse_after:"జలప్రళయము తరువాత నోవహు మూడు వందల ఏబది ఏండ్లు బ్రదికెను. నోవహు దినములన్నియు తొమ్మిది వందల ఏబది ఏండ్లు; అప్పుడతడు మృతిబొందెను."},
+  {name:"షేము",age_at_son:100,years_after:500,total:600,birth_ysc:1556,son_ysc:1656,death_ysc:2156,ref_son:"ఆదికాండము 11:10",ref_after:"ఆదికాండము 11:11",verse_son:"జలప్రళయము గతించిన రెండేండ్లకు షేము నూరేండ్లవాడై అర్పక్షదును కనెను.",verse_after:"షేము అర్పక్షదును కనిన తరువాత ఐదు వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"అర్పక్షదు",age_at_son:35,years_after:403,total:438,birth_ysc:1656,son_ysc:1691,death_ysc:2094,ref_son:"ఆదికాండము 11:12",ref_after:"ఆదికాండము 11:13",verse_son:"అర్పక్షదు ముప్పది అయిదేండ్లు బ్రదికి షేలహును కనెను.",verse_after:"అర్పక్షదు షేలహును కనిన తరువాత నాలుగు వందల మూడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"షేలహు",age_at_son:30,years_after:403,total:433,birth_ysc:1691,son_ysc:1721,death_ysc:2124,ref_son:"ఆదికాండము 11:14",ref_after:"ఆదికాండము 11:15",verse_son:"షేలహు ముప్పది ఏండ్లు బ్రదికి ఏబెరును కనెను.",verse_after:"షేలహు ఏబెరును కనిన తరువాత నాలుగు వందల మూడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"ఏబెరు",age_at_son:34,years_after:430,total:464,birth_ysc:1721,son_ysc:1755,death_ysc:2185,ref_son:"ఆదికాండము 11:16",ref_after:"ఆదికాండము 11:17",verse_son:"ఏబెరు ముప్పది నాలుగేండ్లు బ్రదికి పెలెగును కనెను.",verse_after:"ఏబెరు పెలెగును కనిన తరువాత నాలుగు వందల ముప్పది ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"పెలెగు",age_at_son:30,years_after:209,total:239,birth_ysc:1755,son_ysc:1785,death_ysc:1994,ref_son:"ఆదికాండము 11:18",ref_after:"ఆదికాండము 11:19",verse_son:"పెలెగు ముప్పది ఏండ్లు బ్రదికి రయూను కనెను.",verse_after:"పెలెగు రయూను కనిన తరువాత రెండు వందల తొమ్మిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"రయూ",age_at_son:32,years_after:207,total:239,birth_ysc:1785,son_ysc:1817,death_ysc:2024,ref_son:"ఆదికాండము 11:20",ref_after:"ఆదికాండము 11:21",verse_son:"రయూ ముప్పది రెండేండ్లు బ్రదికి సెరూగును కనెను.",verse_after:"రయూ సెరూగును కనిన తరువాత రెండు వందల ఏడేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"సెరూగు",age_at_son:30,years_after:200,total:230,birth_ysc:1817,son_ysc:1847,death_ysc:2047,ref_son:"ఆదికాండము 11:22",ref_after:"ఆదికాండము 11:23",verse_son:"సెరూగు ముప్పది ఏండ్లు బ్రదికి నాహోరును కనెను.",verse_after:"సెరూగు నాహోరును కనిన తరువాత రెండు వందల ఏండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"నాహోరు",age_at_son:29,years_after:119,total:148,birth_ysc:1847,son_ysc:1876,death_ysc:1995,ref_son:"ఆదికాండము 11:24",ref_after:"ఆదికాండము 11:25",verse_son:"నాహోరు ఇరువది తొమ్మిదేండ్లు బ్రదికి తెరహును కనెను.",verse_after:"నాహోరు తెరహును కనిన తరువాత నూట పందొమ్మిదేండ్లు బ్రదికి కుమారులను కుమార్తెలను కనెను."},
+  {name:"తెరహు",age_at_son:70,years_after:135,total:205,birth_ysc:1876,son_ysc:1946,death_ysc:2081,ref_son:"ఆదికాండము 11:26",ref_after:"ఆదికాండము 11:32",verse_son:"తెరహు డెబ్బది ఏండ్లు బ్రదికి అబ్రామును నాహోరును హారానును కనెను.",verse_after:"తెరహు బ్రదికిన దినములు రెండు వందల అయిదేండ్లు. తెరహు హారానులో మృతిబొందెను."},
+  {name:"అబ్రాహాము",age_at_son:100,years_after:75,total:175,birth_ysc:1946,son_ysc:2046,death_ysc:2121,ref_son:"ఆదికాండము 21:5",ref_after:"ఆదికాండము 25:7",verse_son:"అబ్రాహాము కుమారుడైన ఇస్సాకు అతనికి పుట్టినప్పుడు అతడు నూరేండ్లవాడు.",verse_after:"అబ్రాహాము బ్రదికిన ఆయుష్కాలపు సంవత్సరములు నూట డెబ్బది యయిదు."}
+];
+
+let activeDatasetName = 'HEB';
+let DATA = JSON.parse(JSON.stringify(DATA_HEB));
+let activeNodePath = null; // Path array, e.g. [i] or [i, j] or [i, j, k]
+let visibleNodes = [];    // Flat visually-sorted array of nodes
+let layoutMap = {};       // Maps string pathKey -> {x, y, node, path}
+
+// Keep track of dummy sons dynamically added per patriarch
+let dummySonsMap = {};
+
+// Viewport zoom & pan state
+let zoomScale = 1.0;
+let panX = 0;
+let panY = 0;
+let isDragging = false;
+let startX = 0, startY = 0;
+
+// Nodes positions
+const V_SPACING = 160;
+const NODE_W = 170;
+const NODE_H = 70;
+
+const treeCanvas = document.getElementById('tree-canvas');
+const zoomGroup = document.getElementById('zoom-group');
+const linksGroup = document.getElementById('links-group');
+const nodesGroup = document.getElementById('nodes-group');
+const detailsPanel = document.getElementById('details-panel');
+const popupOverlay = document.getElementById('popup-overlay');
+
+let popupFatherPath = null;
+let showNumbers = false;
+
+// Initialize layout
+function init() {
+  setDataset('HEB');
+  setupDragPan();
+  resetCanvas();
+  
+  // Keyboard traversal
+  window.addEventListener('keydown', handleKeyDown);
+}
+
+function toggleNumbersView() {
+  const chk = document.getElementById('chk-show-numbers');
+  showNumbers = chk.checked;
+  
+  renderTree();
+  if (activeNodePath) {
+    selectNodeByPath(activeNodePath);
+  }
+}
+
+function handleKeyDown(e) {
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (visibleNodes.length === 0) return;
+    
+    let newIndex = 0;
+    if (activeNodePath) {
+      const activeKey = activeNodePath.join(',');
+      const currentIndex = visibleNodes.findIndex(n => n.path.join(',') === activeKey);
+      if (currentIndex !== -1) {
+        if (e.key === 'ArrowUp') {
+          newIndex = Math.max(0, currentIndex - 1);
+        } else {
+          newIndex = Math.min(visibleNodes.length - 1, currentIndex + 1);
+        }
+      }
+    }
+    
+    const targetNode = visibleNodes[newIndex];
+    selectNodeByPath(targetNode.path);
+    centerNodeInViewportByPath(targetNode.path);
+  }
+}
+
+function centerNodeInViewportByPath(path) {
+  const container = document.getElementById('canvas-container');
+  const rect = container.getBoundingClientRect();
+  const W = treeCanvas.clientWidth || window.innerWidth;
+  const centerX = W / 2;
+  
+  let nodeX = centerX;
+  let nodeY = 80 + path[0] * V_SPACING;
+  
+  if (path.length > 1) {
+    const pathKey = path.join(',');
+    const layout = layoutMap[pathKey];
+    if (layout) {
+      nodeX = layout.x;
+      nodeY = layout.y;
+    }
+  }
+  
+  const targetPanX = rect.width / 2 - nodeX * zoomScale;
+  const targetPanY = rect.height / 2 - nodeY * zoomScale;
+  
+  let startPanX = panX;
+  let startPanY = panY;
+  let startTime = null;
+  const duration = 240; // ms
+  
+  function step(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const progress = Math.min(1, (timestamp - startTime) / duration);
+    const ease = progress * (2 - progress); // Quadratic ease out
+    
+    panX = startPanX + (targetPanX - startPanX) * ease;
+    panY = startPanY + (targetPanY - startPanY) * ease;
+    updateTransform();
+    
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// Tree node helper lookups
+function getNodeByPath(path) {
+  if (path.length === 1) {
+    return DATA[path[0]];
+  }
+  let list = dummySonsMap[path[0]] || [];
+  let node = null;
+  for (let step = 1; step < path.length; step++) {
+    node = list[path[step]];
+    if (!node) return null;
+    list = node.children || [];
+  }
+  return node;
+}
+
+function addChildToPath(path, childObj) {
+  if (path.length === 1) {
+    const fatherIdx = path[0];
+    if (!dummySonsMap[fatherIdx]) {
+      dummySonsMap[fatherIdx] = [];
+    }
+    dummySonsMap[fatherIdx].push(childObj);
+  } else {
+    const parentNode = getNodeByPath(path);
+    if (parentNode) {
+      if (!parentNode.children) {
+        parentNode.children = [];
+      }
+      parentNode.children.push(childObj);
+    }
+  }
+}
+
+function deleteNodeByPath(path) {
+  if (path.length === 2) {
+    const [i, j] = path;
+    if (dummySonsMap[i]) {
+      dummySonsMap[i].splice(j, 1);
+    }
+  } else if (path.length > 2) {
+    const parentPath = path.slice(0, -1);
+    const lastIdx = path[path.length - 1];
+    const parentNode = getNodeByPath(parentPath);
+    if (parentNode && parentNode.children) {
+      parentNode.children.splice(lastIdx, 1);
+    }
+  }
+  
+  if (activeNodePath && activeNodePath.join(',') === path.join(',')) {
+    closeDetailsPanel();
+  }
+  renderTree();
+}
+
+function setDataset(name) {
+  activeDatasetName = name;
+  document.getElementById('btn-heb').classList.toggle('active', name === 'HEB');
+  document.getElementById('btn-lxx').classList.toggle('active', name === 'LXX');
+  
+  const accentColor = name === 'LXX' ? '#d32f2f' : '#1976d2';
+  document.documentElement.style.setProperty('--accent', accentColor);
+  
+  const backdrop = document.getElementById('glow-backdrop');
+  backdrop.style.background = `radial-gradient(circle, ${accentColor}0a 0%, transparent 70%)`;
+  
+  // Re-load data, keeping existing dummy nodes if any
+  const src = name === 'LXX' ? DATA_LXX : DATA_HEB;
+  DATA = JSON.parse(JSON.stringify(src));
+  
+  // Recalculate positions and draw
+  renderTree();
+  if (activeNodePath) {
+    selectNodeByPath(activeNodePath);
+  }
+}
+
+function layoutSubtree(nodeList, pathPrefix, parentX, parentY, depth) {
+  const N = nodeList.length;
+  if (N === 0) return;
+
+  const spacing = (depth === 0) ? 55 : (depth === 1 ? 38 : 28);
+  const horizontalOffset = (depth === 0) ? -230 : -200;
+
+  for (let j = 0; j < N; j++) {
+    const ds = nodeList[j];
+    const path = [...pathPrefix, j];
+    const pathKey = path.join(',');
+
+    const x = parentX + horizontalOffset;
+    const y = parentY + (j - (N - 1) / 2) * spacing;
+
+    layoutMap[pathKey] = { x, y, node: ds, path };
+    visibleNodes.push({ path, x, y, type: 'dummy', name: ds.name });
+
+    layoutSubtree(ds.children || [], path, x, y, depth + 1);
+  }
+}
+
+function renderTree() {
+  nodesGroup.innerHTML = '';
+  linksGroup.innerHTML = '';
+  visibleNodes = [];
+  layoutMap = {};
+  
+  const W = treeCanvas.clientWidth || window.innerWidth;
+  const centerX = W / 2;
+  
+  // 1. Compute all node positions recursively
+  for (let i = 0; i < DATA.length; i++) {
+    const parentY = 80 + i * V_SPACING;
+    visibleNodes.push({ path: [i], x: centerX, y: parentY, type: 'main', name: DATA[i].name });
+    
+    const dummies = dummySonsMap[i] || [];
+    layoutSubtree(dummies, [i], centerX, parentY, 0);
+  }
+  
+  // Sort visible nodes for flat keyboard navigation (ArrowUp/Down visual order)
+  visibleNodes.sort((a, b) => {
+    if (Math.abs(a.y - b.y) < 1) {
+      return b.x - a.x;
+    }
+    return a.y - b.y;
+  });
+  
+  // 2. Draw Connection Links
+  // A. Main lineage vertical lines
+  for (let i = 0; i < DATA.length; i++) {
+    const d = DATA[i];
+    const parentY = 80 + i * V_SPACING;
+    
+    if (i < DATA.length - 1) {
+      const childY = 80 + (i + 1) * V_SPACING;
+      
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', centerX);
+      line.setAttribute('y1', parentY + NODE_H/2);
+      line.setAttribute('x2', centerX);
+      line.setAttribute('y2', childY - NODE_H/2);
+      line.setAttribute('class', 'tree-link');
+      linksGroup.appendChild(line);
+
+      if (showNumbers) {
+        const midY = (parentY + childY) / 2;
+        const gLabel = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', centerX);
+        circle.setAttribute('cy', midY);
+        circle.setAttribute('r', '13');
+        circle.setAttribute('fill', '#ffffff');
+        circle.setAttribute('stroke', 'var(--accent)');
+        circle.setAttribute('stroke-width', '1.5');
+        gLabel.appendChild(circle);
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', centerX);
+        text.setAttribute('y', midY + 4);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '10px');
+        text.setAttribute('font-weight', '700');
+        text.setAttribute('fill', '#111');
+        text.textContent = d.age_at_son;
+        gLabel.appendChild(text);
+        
+        linksGroup.appendChild(gLabel);
+      }
+    }
+  }
+  
+  // B. Dummy branches (recursive Bezier curves)
+  for (const key in layoutMap) {
+    const { x, y, node, path } = layoutMap[key];
+    
+    let px, py;
+    if (path.length === 2) {
+      px = centerX;
+      py = 80 + path[0] * V_SPACING;
+    } else {
+      const parentPathKey = path.slice(0, -1).join(',');
+      const parentLayout = layoutMap[parentPathKey];
+      px = parentLayout.x;
+      py = parentLayout.y;
+    }
+    
+    const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const startX = px - NODE_W/2;
+    const endX = x + NODE_W/2;
+    const controlX1 = startX - 85;
+    const controlX2 = endX + 85;
+    
+    pathEl.setAttribute('d', `M ${startX} ${py} C ${controlX1} ${py}, ${controlX2} ${y}, ${endX} ${y}`);
+    pathEl.setAttribute('class', 'tree-link dummy-link');
+    linksGroup.appendChild(pathEl);
+
+    if (showNumbers) {
+      const mx = 0.125 * startX + 0.375 * controlX1 + 0.375 * controlX2 + 0.125 * endX;
+      const my = (py + y) / 2;
+      
+      const gLabel = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', mx);
+      circle.setAttribute('cy', my);
+      circle.setAttribute('r', '13');
+      circle.setAttribute('fill', '#ffffff');
+      circle.setAttribute('stroke', '#ff9800');
+      circle.setAttribute('stroke-width', '1.5');
+      gLabel.appendChild(circle);
+      
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', mx);
+      text.setAttribute('y', my + 4);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('font-size', '10px');
+      text.setAttribute('font-weight', '700');
+      text.setAttribute('fill', '#111');
+      text.textContent = node.age_at_father_birth;
+      gLabel.appendChild(text);
+      
+      linksGroup.appendChild(gLabel);
+    }
+  }
+  
+  // 3. Draw Nodes
+  // A. Main nodes
+  for (let i = 0; i < DATA.length; i++) {
+    const d = DATA[i];
+    const parentY = 80 + i * V_SPACING;
+    
+    const mainG = createNodeGroup(d.name, d.birth_ysc, centerX, parentY, false, () => {
+      selectNodeByPath([i]);
+    });
+    mainG.setAttribute('id', `node-path-${i}`);
+    if (isPathActive([i])) {
+      mainG.setAttribute('class', 'tree-node active');
+    }
+    
+    if (i < DATA.length - 1) {
+      const addBtn = createActionBtn(centerX - NODE_W/2 + 20, parentY - NODE_H/2, 'plus', (e) => {
+        e.stopPropagation();
+        openAddDummyPopup([i]);
+      });
+      mainG.appendChild(addBtn);
+    }
+    
+    nodesGroup.appendChild(mainG);
+  }
+  
+  // B. Dummy nodes from layoutMap
+  for (const key in layoutMap) {
+    const { x, y, node, path } = layoutMap[key];
+    
+    const dummyG = createNodeGroup(node.name, node.birth_ysc, x, y, true, () => {
+      selectNodeByPath(path);
+    });
+    dummyG.setAttribute('id', `node-path-${key.replace(/,/g, '-')}`);
+    if (isPathActive(path)) {
+      dummyG.setAttribute('class', 'tree-node dummy active');
+    }
+    
+    // Delete action button
+    const delBtn = createActionBtn(x + NODE_W/2 - 20, y - NODE_H/2, 'delete', (e) => {
+      e.stopPropagation();
+      deleteNodeByPath(path);
+    });
+    dummyG.appendChild(delBtn);
+    
+    // Plus action button (to add children recursively)
+    const addBtn = createActionBtn(x - NODE_W/2 + 20, y - NODE_H/2, 'plus', (e) => {
+      e.stopPropagation();
+      openAddDummyPopup(path);
+    });
+    dummyG.appendChild(addBtn);
+    
+    nodesGroup.appendChild(dummyG);
+  }
+}
+
+function createNodeGroup(name, birthYsc, x, y, isDummy, onClick) {
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('class', isDummy ? 'tree-node dummy' : 'tree-node');
+  g.addEventListener('click', onClick);
+  
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x - NODE_W/2);
+  rect.setAttribute('y', y - NODE_H/2);
+  rect.setAttribute('width', NODE_W);
+  rect.setAttribute('height', NODE_H);
+  g.appendChild(rect);
+  
+  const textName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  textName.setAttribute('x', x);
+  textName.setAttribute('y', showNumbers ? y - 4 : y + 5);
+  textName.setAttribute('text-anchor', 'middle');
+  textName.setAttribute('class', 'node-text-name');
+  textName.textContent = name;
+  g.appendChild(textName);
+  
+  if (showNumbers) {
+    const textYear = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textYear.setAttribute('x', x);
+    textYear.setAttribute('y', y + 18);
+    textYear.setAttribute('text-anchor', 'middle');
+    textYear.setAttribute('class', 'node-text-year');
+    textYear.textContent = `జననం: ${birthYsc} YSC`;
+    g.appendChild(textYear);
+  }
+  
+  return g;
+}
+
+function createActionBtn(cx, cy, type, onClick) {
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('class', type === 'delete' ? 'node-action-btn btn-delete' : 'node-action-btn');
+  g.addEventListener('click', onClick);
+  
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circle.setAttribute('cx', cx);
+  circle.setAttribute('cy', cy);
+  circle.setAttribute('r', 9);
+  g.appendChild(circle);
+  
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  if (type === 'plus') {
+    path.setAttribute('d', `M ${cx-4} ${cy} L ${cx+4} ${cy} M ${cx} ${cy-4} L ${cx} ${cy+4}`);
+    path.setAttribute('stroke', '#555');
+    path.setAttribute('stroke-width', '1.5');
+  } else {
+    // Cross icon for delete
+    path.setAttribute('d', `M ${cx-3.5} ${cy-3.5} L ${cx+3.5} ${cy+3.5} M ${cx+3.5} ${cy-3.5} L ${cx-3.5} ${cy+3.5}`);
+    path.setAttribute('stroke', '#d32f2f');
+    path.setAttribute('stroke-width', '1.5');
+  }
+  g.appendChild(path);
+  
+  return g;
+}
+
+// ═══════════════ DETAILED CARD PANEL ═══════════════
+function selectNodeByPath(path) {
+  activeNodePath = path;
+  
+  // Highlight active node in SVG
+  document.querySelectorAll('.tree-node').forEach(el => {
+    const isNodeDummy = el.classList.contains('dummy');
+    el.setAttribute('class', isNodeDummy ? 'tree-node dummy' : 'tree-node');
+  });
+  
+  const targetId = path.length === 1 
+    ? `node-path-${path[0]}` 
+    : `node-path-${path.join('-')}`;
+    
+  const activeEl = document.getElementById(targetId);
+  if (activeEl) {
+    const isNodeDummy = activeEl.classList.contains('dummy');
+    activeEl.setAttribute('class', isNodeDummy ? 'tree-node dummy active' : 'tree-node active');
+  }
+  
+  // Draw card detail
+  const contentEl = document.getElementById('panel-content-body');
+  
+  if (path.length === 1) {
+    const idx = path[0];
+    const d = DATA[idx];
+    const sonName = idx < DATA.length - 1 ? DATA[idx + 1].name : "ఇస్సాకు";
+    const prev = idx > 0 ? DATA[idx - 1] : null;
+    
+    let formulaHtml = '';
+    let statsHtml = '';
+    
+    if (showNumbers) {
+      formulaHtml = idx === 0 
+        ? `<div style="font-size: 0.92rem; line-height: 1.5; color: #333; background: rgba(25, 118, 210, 0.04); border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 6px; margin-bottom: 20px; font-family: 'Noto Sans Telugu', 'Inter', sans-serif;">
+            <strong>${d.name} జన్మించిన సంవత్సరం:</strong><br/>
+            ఆదాము మొదటి పితామహుడు. ఆయన కాలక్రమం సృష్టి యొక్క ప్రారంభం (సంవత్సరం <strong>0</strong>) నుండి లెక్కించబడుతుంది.
+           </div>`
+        : `<div style="font-size: 0.92rem; line-height: 1.5; color: #333; background: rgba(25, 118, 210, 0.04); border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 6px; margin-bottom: 20px; font-family: 'Noto Sans Telugu', 'Inter', sans-serif;">
+            <strong>${d.name} జన్మించిన సంవత్సరం:</strong><br/>
+            ${prev.name} జన్మించిన సంవత్సరం (<strong>${prev.birth_ysc}</strong>) + గడిచిన సంవత్సరాలు ${d.name} పుట్టే వరకు (<strong>${prev.age_at_son}</strong>) = ${d.name} జన్మించిన సంవత్సరం (<strong>${d.birth_ysc}</strong>)
+           </div>`;
+
+      statsHtml = `
+        <div class="spot-stat-row">
+          <div class="spot-stat highlight">
+            <div class="spot-stat-label">కుమారుడు పుట్టిన వయస్సు</div>
+            <div class="spot-stat-val">${d.age_at_son} సం.</div>
+          </div>
+          <div class="spot-stat">
+            <div class="spot-stat-label">కుమారుని తరువాత బ్రదికినది</div>
+            <div class="spot-stat-val">${d.years_after} సం.</div>
+          </div>
+        </div>
+        
+        <div class="spot-stat-row">
+          <div class="spot-stat">
+            <div class="spot-stat-label">మొత్తం జీవితకాలం</div>
+            <div class="spot-stat-val">${d.total} సం.</div>
+          </div>
+          <div class="spot-stat">
+            <div class="spot-stat-label">మరణించిన సంవత్సరం</div>
+            <div class="spot-stat-val">${d.death_ysc} YSC</div>
+          </div>
+        </div>
+      `;
+    }
+
+    contentEl.innerHTML = `
+      <div class="spot-name">${d.name} <span style="color:#888; font-weight:400; font-size:0.8em; margin:0 6px;">&rarr;</span> <span style="color:var(--accent)">${sonName}</span></div>
+      
+      ${formulaHtml}
+      ${statsHtml}
+      
+      <div class="spot-verses">
+        <h3>లేఖన ఆధారాలు</h3>
+        <div class="spot-verse">
+          ${d.verse_son}
+          <span class="spot-verse-ref">${d.ref_son}</span>
+        </div>
+        <div class="spot-verse">
+          ${d.verse_after}
+          <span class="spot-verse-ref">${d.ref_after}</span>
+        </div>
+      </div>
+    `;
+  } else {
+    const node = getNodeByPath(path);
+    const parentPath = path.slice(0, -1);
+    const parentNode = getNodeByPath(parentPath);
+    const parentName = parentNode.name;
+    const parentBirthYsc = parentNode.birth_ysc;
+    
+    let formulaHtml = '';
+    let statsHtml = '';
+    
+    if (showNumbers) {
+      formulaHtml = `<div style="font-size: 0.92rem; line-height: 1.5; color: #333; background: rgba(255, 152, 0, 0.04); border-left: 4px solid #ff9800; padding: 12px 14px; border-radius: 6px; margin-bottom: 20px; font-family: 'Noto Sans Telugu', 'Inter', sans-serif;">
+          <strong>${node.name} జన్మించిన సంవత్సరం:</strong><br/>
+          తండ్రి ${parentName} జన్మించిన సంవత్సరం (<strong>${parentBirthYsc}</strong>) + గడిచిన సంవత్సరాలు ${node.name} పుట్టే వరకు (<strong>${node.age_at_father_birth}</strong>) = ${node.name} జన్మించిన సంవత్సరం (<strong>${node.birth_ysc}</strong>)
+         </div>`;
+
+      statsHtml = `
+        <div class="spot-stat-row">
+          <div class="spot-stat highlight" style="border-color:#ff9800;">
+            <div class="spot-stat-label" style="color:#ff9800;">తండ్రి వయస్సు పుట్టినప్పుడు</div>
+            <div class="spot-stat-val" style="color:#ff9800;">${node.age_at_father_birth} సం.</div>
+          </div>
+          <div class="spot-stat">
+            <div class="spot-stat-label">మొత్తం జీవితకాలం</div>
+            <div class="spot-stat-val">${node.lifespan} సం.</div>
+          </div>
+        </div>
+        
+        <div class="spot-stat-row" style="grid-template-columns: 1fr;">
+          <div class="spot-stat">
+            <div class="spot-stat-label">మరణించిన సంవత్సరం</div>
+            <div class="spot-stat-val">${node.death_ysc} YSC</div>
+          </div>
+        </div>
+      `;
+    }
+
+    contentEl.innerHTML = `
+      <div class="spot-name" style="color:#ff9800">${parentName} కుమారుడు <span style="font-size:0.7em; color:#888; font-weight:400;">(ఇతర కుమారుడు)</span></div>
+      
+      ${formulaHtml}
+      ${statsHtml}
+      
+      <div class="spot-verses">
+        <h3>సత్య వివరణ</h3>
+        <div class="spot-verse" style="border-left-color:#ff9800; color:#555;">
+          ఈ ఇతర కుమారుడు (ఉదా: కయీను లేదా హేబెలు లేదా ఇతర తోబుట్టువులు) ప్రధాన కాలక్రమ цепочку (ఆదాము నుండి అబ్రాహాము వరకు) లెక్కించడానికి ఉపయోగించబడలేదు. అందువల్ల, ఇతని జీవితకాలం లేదా జనన సంవత్సరం ప్రధాన కాలక్రమ నిడివిని ఏ విధంగానూ మార్చదు. కాలక్రమం కేవలం వంశావళి ప్రధాన పితామహుల జనన సంవత్సరాలపై మాత్రమే ఆధారపడి ఉంటుంది.
+        </div>
+      </div>
+    `;
+  }
+  
+  detailsPanel.classList.remove('hidden');
+}
+
+function isPathActive(path) {
+  if (!activeNodePath || activeNodePath.length !== path.length) return false;
+  for (let idx = 0; idx < path.length; idx++) {
+    if (activeNodePath[idx] !== path[idx]) return false;
+  }
+  return true;
+}
+
+function closeDetailsPanel() {
+  detailsPanel.classList.add('hidden');
+  activeNodePath = null;
+  // Clear highlighting
+  document.querySelectorAll('.tree-node').forEach(el => {
+    const isNodeDummy = el.classList.contains('dummy');
+    el.setAttribute('class', isNodeDummy ? 'tree-node dummy' : 'tree-node');
+  });
+}
+
+// ═══════════════ ADD / DELETE DUMMY NODES ═══════════════
+function openAddDummyPopup(parentPath) {
+  popupFatherPath = parentPath;
+  const parentNode = getNodeByPath(parentPath);
+  
+  // Enforce maximum limit of 10 children per node
+  let childrenCount = 0;
+  if (parentPath.length === 1) {
+    childrenCount = (dummySonsMap[parentPath[0]] || []).length;
+  } else {
+    childrenCount = (parentNode.children || []).length;
+  }
+  
+  if (childrenCount >= 10) {
+    alert("గరిష్టంగా 10 మంది కుమారులను మాత్రమే జోడించగలరు!");
+    return;
+  }
+  
+  document.getElementById('input-son-name').value = '';
+  document.getElementById('input-father-age').value = '';
+  document.getElementById('input-lifespan').value = '';
+  document.getElementById('error-father-age').style.display = 'none';
+  
+  popupOverlay.classList.add('visible');
+  document.getElementById('app').classList.add('blurred');
+}
+
+function closePopup() {
+  popupOverlay.classList.remove('visible');
+  document.getElementById('app').classList.remove('blurred');
+}
+
+function addDummySonSubmit() {
+  const parentNode = getNodeByPath(popupFatherPath);
+  
+  let childrenCount = 0;
+  if (popupFatherPath.length === 1) {
+    childrenCount = (dummySonsMap[popupFatherPath[0]] || []).length;
+  } else {
+    childrenCount = (parentNode.children || []).length;
+  }
+  
+  const name = document.getElementById('input-son-name').value.trim() || `కుమారుడు ${childrenCount + 2}`;
+  const ageAtBirth = parseInt(document.getElementById('input-father-age').value);
+  const lifespan = parseInt(document.getElementById('input-lifespan').value) || 900;
+  
+  if (isNaN(ageAtBirth) || ageAtBirth <= 0) {
+    alert("దయచేసి సరైన వయస్సును నమోదు చేయండి!");
+    return;
+  }
+  
+  const fatherLifespan = (popupFatherPath.length === 1) ? parentNode.total : parentNode.lifespan;
+  if (ageAtBirth >= fatherLifespan) {
+    document.getElementById('error-father-age').style.display = 'block';
+    return;
+  }
+  
+  const birthYsc = parentNode.birth_ysc + ageAtBirth;
+  const deathYsc = birthYsc + lifespan;
+  
+  const newDummy = {
+    name,
+    age_at_father_birth: ageAtBirth,
+    lifespan,
+    birth_ysc: birthYsc,
+    death_ysc: deathYsc,
+    children: []
+  };
+  
+  addChildToPath(popupFatherPath, newDummy);
+  
+  closePopup();
+  renderTree();
+  
+  // Select the newly added node
+  const newPath = [...popupFatherPath, childrenCount];
+  selectNodeByPath(newPath);
+}
+
+// ═══════════════ CANVAS ZOOM & DRAG ═══════════════
+function setupDragPan() {
+  const container = document.getElementById('canvas-container');
+  
+  container.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    isDragging = true;
+    startX = e.clientX - panX;
+    startY = e.clientY - panY;
+    container.style.cursor = 'grabbing';
+  });
+  
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    panX = e.clientX - startX;
+    panY = e.clientY - startY;
+    updateTransform();
+  });
+  
+  window.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      container.style.cursor = 'grab';
+    }
+  });
+  
+  // Wheel Zoom
+  container.addEventListener('wheel', e => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.1 : 1/1.1;
+    
+    // Zoom centered on cursor position
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    const prevScale = zoomScale;
+    zoomScale = Math.min(3.0, Math.max(0.3, zoomScale * zoomFactor));
+    
+    panX = mouseX - (mouseX - panX) * (zoomScale / prevScale);
+    panY = mouseY - (mouseY - panY) * (zoomScale / prevScale);
+    
+    updateTransform();
+  }, { passive: false });
+}
+
+function adjustZoom(factor) {
+  const container = document.getElementById('canvas-container');
+  const rect = container.getBoundingClientRect();
+  const mouseX = rect.width / 2;
+  const mouseY = rect.height / 2;
+  
+  const prevScale = zoomScale;
+  zoomScale = Math.min(3.0, Math.max(0.3, zoomScale * factor));
+  
+  panX = mouseX - (mouseX - panX) * (zoomScale / prevScale);
+  panY = mouseY - (mouseY - panY) * (zoomScale / prevScale);
+  
+  updateTransform();
+}
+
+function resetCanvas() {
+  zoomScale = 0.85;
+  const container = document.getElementById('canvas-container');
+  const rect = container.getBoundingClientRect();
+  panX = rect.width / 2 - (rect.width / 2) * zoomScale;
+  panY = 40; // Align towards the top
+  updateTransform();
+}
+
+function updateTransform() {
+  zoomGroup.setAttribute('transform', `translate(${panX}, ${panY}) scale(${zoomScale})`);
+}
+
+// Window resizing adjustments
+window.addEventListener('resize', () => {
+  renderTree();
+});
+
+// Run
+window.onload = init;
+</script>
+</body>
+</html>
